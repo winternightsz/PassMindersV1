@@ -9,18 +9,19 @@ import Link from 'next/link';
 
 export default function HomeTest() {
   return (
-    <main className="bg-[#f5f7fa] min-h-screen flex flex-col items-center justify-center">
+    <main className="bg-[#f5f7fa] min-h-screen ">
+      
       {/* Navbar */}
-      <nav className="w-full bg-[#e6eaf6] py-4 flex justify-between items-center px-8">
+      <nav className="w-full bg-[#e6eaf6] py-8 flex justify-between items-center px-12">
         <div className="flex items-center">
           <div className="flex items-center space-x-2">
             <Image
-              src="" 
+              src="/imagensHome/logoEscudo.png" 
               alt="PassMinders Logo"
               width={40}
               height={40}
             />
-            <h1 className="text-2xl font-bold text-[#4e6bdf]">Pass<span className="text-[#a4b3f5]">Minders</span></h1>
+            <h1 className="text-2xl font-bold text-[#4e6bdf]">Pass<span className="text-white">Minders</span></h1>
           </div>
         </div>
         <div className="flex space-x-4">
@@ -34,13 +35,13 @@ export default function HomeTest() {
           </Link>
         </div>
       </nav>
-
+      <div className="flex items-center justify-center">
       {/* Main */}
       <section className="flex flex-col lg:flex-row items-center justify-between w-full max-w-6xl p-8">
         {/* Illustration */}
         <div className="w-full lg:w-1/2 mb-8 lg:mb-0">
           <Image
-            src="" 
+            src="/imagensHome/homeImagemGrande.png" 
             alt="Illustration"
             width={500}
             height={500}
@@ -63,6 +64,7 @@ export default function HomeTest() {
           </Link>
         </div>
       </section>
+      </div>
     </main>
   );
 }
