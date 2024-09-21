@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winternightsz/PassMindersV1.git#main"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/winternightsz/PassMindersV1/issues"
+  },
+  "homepage": "https://github.com/winternightsz/PassMindersV1/tree/main#readme",
+  "description": "",
+  "dependencies": {
+    "fastify": "^5.0.0"
+  }
+}
