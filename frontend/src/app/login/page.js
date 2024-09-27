@@ -1,47 +1,37 @@
-'use client';
-import { useState } from 'react';
-import axios from 'axios';
+export const metadata = {
+  title: "Login",
+  description: "Pagina do Home",
+};
+
+import Image from 'next/image';
+
+import Navbar from '@/components/CadLogNavbar';
+import LoginForm from '@/components/LoginForm';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  return ( 
+    <>
+      <div className="bg-azul60 min-h-screen">
+        <Navbar />
+        <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-evenly w-full max-w-6xl p-8 mx-auto lg:gap-x-12">
+          
+          {/* Seção da Imagem */}
+          <div className="hidden md:block w-full lg:w-1/2 flex justify-center lg:justify-end mb-8 lg:mb-0">
+            <Image
+              src="/imagensLogin/loginImagemGrande.png" 
+              alt="Imagem"
+              width={500}
+              height={500}
+              className="max-w-full h-auto"
+            />
+          </div>
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        email,
-        password,
-      });
-      console.log('Login bem-sucedido', res.data);
-    } catch (err) {
-      console.error('Erro no login', err);
-    }
-  };
-
-  return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-1/3">
-        <h1 className="text-2xl mb-6">Login</h1>
-        <input
-          type="email"
-          className="border p-2 w-full mb-4"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          className="border p-2 w-full mb-4"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 w-full">
-          Entrar
-        </button>
-      </form>
-    </div>
+          {/* Seção do Formulário */}
+          <div className="w-full">
+            <LoginForm />
+          </div>
+        </div>  
+      </div>
+    </>
   );
 }
-
