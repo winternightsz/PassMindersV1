@@ -77,7 +77,7 @@ const CadastroForm = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Cadastro bem-sucedido:', data);
+        alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
         router.push('/login');
       } else {
         const error = await response.json();

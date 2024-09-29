@@ -7,9 +7,9 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter(); // Inicializa o roteador para navegação
+  const router = useRouter(); 
 
-  // Função para manipular a submissão do formulário
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -29,20 +29,20 @@ const LoginForm = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const token = data.token; // Supondo que o token JWT seja retornado como 'token'
+        const token = data.token; // supondo que o token JWT seja retornado como 'token'
 
-        // Armazenar o token no localStorage
+        // armazenar o token no localStorage
         localStorage.setItem('authToken', token);
 
-        // Redirecionar para a página principal após login bem-sucedido
-        router.push('/main'); // Redireciona para a rota '/main'
+        // redirecionar para a pagina principal apos login bem-sucedido
+        router.push('/mainp'); // Redireciona para a rota '/main'
       } else {
-        // Lidar com erros de autenticação
+        
         const error = await response.json();
         setErrorMessage(error.message || 'Erro ao fazer login');
       }
     } catch (err) {
-      console.error('Erro na requisição:', err);
+      console.error('Erro na requisicao:', err);
       setErrorMessage('Erro ao fazer login. Tente novamente.');
     }
   };
