@@ -1,7 +1,9 @@
 import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { knex } from '../../database'
 
-export const CreateUser = async (app: FastifyInstance) =>{
-    app.get('/users', (request: FastifyRequest, reply: FastifyReply) =>{
-        return reply.status(200).send('Usuário criado com sucesso!')
+export const FindAllUsers = async (app: FastifyInstance) =>{
+    app.get('/findAllUsers', async() =>{
+        const tables = await knex('Usuario').select('*')
+        return tables
     })
 }
