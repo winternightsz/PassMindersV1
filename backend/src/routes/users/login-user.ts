@@ -5,16 +5,15 @@ import { z } from 'zod'
 export const LoginUser = async (app: FastifyInstance) =>{
     app.post('/loginUser', async(request, reply) =>{
         const schema = z.object({
-            nomeUsuario: z.string(),
             email: z.string().email(),
             senha: z.string()
         })
 
         try{
-            const {nomeUsuario,email,senha} = schema.parse(request.body)
+            const {email,senha} = schema.parse(request.body)
 
             const user = await knex('Usuario')
-                .where({nomeUsuario,email,senha})
+                .where({email,senha})
                 .first()
 
             if(!user){

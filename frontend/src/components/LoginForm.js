@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 
 const LoginForm = () => {
-  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
@@ -15,18 +15,16 @@ const LoginForm = () => {
 
     // Ajustar os dados para enviar ao backend
     const formData = {
-      emailOrUsername, 
+      email,
       senha
     };
 
     try {
-      // Ajustar o endpoint para corresponder ao backend
-      const response = await axios.post('http://localhost:5000/authUser', formData);
+      const response = await axios.post('http://localhost:5000/loginUser', formData);
 
       if (response.status === 200) {
         alert("Login feito com sucesso!");
-        
-        router.push('/mainp');
+        router.push('/');
       } else {
         setErrorMessage(response.data.message || 'Erro ao fazer login');
       }
@@ -51,22 +49,22 @@ const LoginForm = () => {
             )}
             {/* Formulário */}
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Campo de E-mail ou Nome de Usuário */}
+              {/* Campo de E-mail */}
               <div>
                 <label
-                  htmlFor="emailOrUsername"
+                  htmlFor="email"
                   className="block mb-2 text-base font-medium text-azul10"
                 >
-                  Seu e-mail ou Nome de Usuário
+                  E-mail 
                 </label>
                 <input
                   type="text"
-                  name="emailOrUsername" // Ajustado para corresponder ao backend
+                  name="email" // Ajustado para corresponder ao backend
                   className="!bg-azul60 border border-gray-300 text-azul10 rounded-lg focus:ring-azul10 focus:border-azul10 block w-full p-2.5"
                   placeholder="email@exemplo.com ou @username"
                   required
-                  value={emailOrUsername}
-                  onChange={(e) => setEmailOrUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               {/* Campo de Senha */}
