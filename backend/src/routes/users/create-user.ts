@@ -43,7 +43,7 @@ export const CreateUser = async (app: FastifyInstance) => {
                 nomeUsuario: user.nomeUsuario,
                 email: user.email,
                 senha: user.senha,
-                token // Adiciona o token aqui
+                token 
             };
 
             // Inserindo o usuário no banco de dados
