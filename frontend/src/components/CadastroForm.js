@@ -36,6 +36,8 @@ const CadastroForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+    
     // validacao de senha e confirmacao
     if (senha !== confirmPassword) {
       alert("As senhas nao sao iguais.");
@@ -49,11 +51,11 @@ const CadastroForm = () => {
     }
 
     // verifica se email ou nome de usuario ja estao cadastrados
-    //const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
-    //if (isDuplicate) {
-    //  alert("Email ou nome de usuario já estao cadastrados.");
-    //  return; // impede o cadastro se já existe
-    //}
+    const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
+    if (isDuplicate) {
+      alert("Email ou nome de usuario já estao cadastrados.");
+      return; // impede o cadastro se já existe
+    }
 
     // dados para serem enviados para o backend
     const formData = { email, nomeUsuario, senha };
@@ -62,7 +64,7 @@ const CadastroForm = () => {
       
       const response = await axios.post("http://localhost:5000/createUser", formData);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
         router.push('/login');
       } else {

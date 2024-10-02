@@ -4,9 +4,9 @@ export const knex = setupKnex({
     client: 'mysql',
     connection:{
         host: 'localhost',
+        database: 'PassMinders',
         port: 3306,
         user: 'root',
-        password: '123456',
-        database: 'passMinders'
+        password: '12345'
     }
 })

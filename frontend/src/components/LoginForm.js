@@ -22,7 +22,7 @@ const LoginForm = () => {
       
       const response = await axios.post('http://localhost:5000/login', formData);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         const token = response.data.token; // supondo que o token JWT seja retornado como 'token'
 
         // armazenar o token no localStorage
