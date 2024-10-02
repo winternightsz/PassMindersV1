@@ -66,7 +66,7 @@ const CadastroForm = () => {
 
       if (response.status === 201) {
         alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
-        router.push('/login');
+        //router.push('/login');
       } else {
         console.error('Erro ao cadastrar:', response.data);
       }
