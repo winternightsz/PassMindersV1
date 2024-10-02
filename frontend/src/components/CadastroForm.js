@@ -5,8 +5,8 @@ import axios from "axios";
 
 const CadastroForm = () => {
   const [email, setEmail] = useState("");
-  const [nome, setNome] = useState("");
-  const [password, setPassword] = useState("");
+  const [nomeUsuario, setNome] = useState("");
+  const [senha, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
 
@@ -37,26 +37,26 @@ const CadastroForm = () => {
     e.preventDefault();
 
     // validacao de senha e confirmacao
-    if (password !== confirmPassword) {
+    if (senha !== confirmPassword) {
       alert("As senhas nao sao iguais.");
       return;
     }
 
     // verifica se a senha atende os requisitos
-    if (!isPasswordValid(password)) {
+    if (!isPasswordValid(senha)) {
       alert("A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiuscula e um numero.");
       return;
     }
 
     // verifica se email ou nome de usuario ja estao cadastrados
-    //const isDuplicate = await checkDuplicateUser(email, nome);
+    //const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
     //if (isDuplicate) {
     //  alert("Email ou nome de usuario já estao cadastrados.");
     //  return; // impede o cadastro se já existe
     //}
 
     // dados para serem enviados para o backend
-    const formData = { email, nome, password };
+    const formData = { email, nomeUsuario, senha };
 
     try {
       
@@ -105,7 +105,7 @@ const CadastroForm = () => {
                 className="!bg-azul60 border border-gray-300 text-azul10 text-base rounded-lg focus:ring-azul10 focus:border-azul10 block w-full p-2.5"
                 placeholder="@username"
                 required
-                value={nome}
+                value={nomeUsuario}
                 onChange={(e) => setNome(e.target.value)}
               />
             </div>
@@ -119,7 +119,7 @@ const CadastroForm = () => {
                 placeholder="********"
                 className="!bg-azul60 border border-gray-300 text-azul10 text-base rounded-lg focus:ring-azul10 focus:border-azul10 block w-full p-2.5"
                 required
-                value={password}
+                value={senha}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>

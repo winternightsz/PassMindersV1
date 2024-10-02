@@ -1,48 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from 'next/navigation'; //para usar o App Router
+import { useRouter } from 'next/navigation';
+import axios from "axios";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [senha, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter(); 
+  const router = useRouter();
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = {
       email,
-      password
+      senha
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      
+      const response = await axios.post('http://localhost:5000/login', formData);
 
-      if (response.ok) {
-        const data = await response.json();
-        const token = data.token; // supondo que o token JWT seja retornado como 'token'
+      if (response.status === 200) {
+        const token = response.data.token; // supondo que o token JWT seja retornado como 'token'
 
         // armazenar o token no localStorage
         localStorage.setItem('authToken', token);
 
-        // redirecionar para a pagina principal apos login bem-sucedido
-        router.push('/mainp'); // Redireciona para a rota '/main'
+        // redirecionar para a página principal após login bem-sucedido
+        router.push('/mainp');
       } else {
-        
-        const error = await response.json();
-        setErrorMessage(error.message || 'Erro ao fazer login');
+        setErrorMessage(response.data.message || 'Erro ao fazer login');
       }
     } catch (err) {
-      console.error('Erro na requisicao:', err);
+      console.error('Erro na requisição:', err);
       setErrorMessage('Erro ao fazer login. Tente novamente.');
     }
   };
@@ -94,7 +86,7 @@ const LoginForm = () => {
                   placeholder="••••••••"
                   className="!bg-azul60 border border-gray-300 text-azul10 rounded-lg focus:ring-azul10 focus:border-azul10 block w-full p-2.5"
                   required
-                  value={password}
+                  value={senha}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
