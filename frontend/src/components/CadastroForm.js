@@ -16,25 +16,8 @@ const CadastroForm = () => {
      return password.length >= 8;
    };
 
-  // funcao para verificar se tem email e nome de usuario duplicados
-  // const checkDuplicateUser = async (email, nome) => {
-  //   try {
-  //     const response = await axios.post("http://localhost:5000/api/check-user", {
-  //       email,
-  //       nome,
-  //     });
-
-  //     return response.data.exists; // retorna `true` se existe e `false` se nao tem
-  //   } catch (err) {
-  //     console.error("Erro na requisicao de verificacao:", err);
-  //     return true; // quando da erro nao faz o cadastro
-  //   }
-  // };
-
   // funcao que faz a requisicao para o backend e manipula a submissao do formulario
   // pra criar um novo usuario no banco de dados
-  
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -50,18 +33,10 @@ const CadastroForm = () => {
        return;
      }
 
-    // verifica se email ou nome de usuario ja estao cadastrados
-    // const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
-    // if (isDuplicate) {
-    //   alert("Email ou nome de usuario já estao cadastrados.");
-    //   return; // impede o cadastro se já existe
-    // }
-
     // dados para serem enviados para o backend
     const formData = { email, nomeUsuario, senha };
-
+     
     try {
-      
       const response = await axios.post("http://localhost:5000/createUser", formData);
 
       if (response.status === 201) {
