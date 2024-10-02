@@ -6,10 +6,10 @@ export const app = fastify()
 app.register(routes)
 app.register(cors,{})
 
-app.listen({port: 3000}, (err,address) =>{
+app.listen({port: 5000}, (err,address) =>{
     if (err){
         console.log(err)
     }
 
-    console.log('Servidor rodando em http://localhost:3000')
+    console.log('Servidor rodando em http://localhost:5000')
 })
