@@ -20,35 +20,41 @@ const CadastroForm = () => {
   // pra criar um novo usuario no banco de dados
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // validacao de senha e confirmacao
+
+    // Validação de senha e confirmação
     if (senha !== confirmPassword) {
-      alert("As senhas nao sao iguais.");
-      return;
+        alert("As senhas não são iguais.");
+        return;
     }
 
-    // verifica se a senha atende os requisitos
-     if (!isPasswordValid(senha)) {
-       alert("A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiuscula e um numero.");
-       return;
-     }
+    // Verifica se a senha atende os requisitos
+    if (!isPasswordValid(senha)) {
+        alert("A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula e um número.");
+        return;
+    }
 
-    // dados para serem enviados para o backend
+    // Dados para serem enviados para o backend
     const formData = { email, nomeUsuario, senha };
-     
-    try {
-      const response = await axios.post("http://localhost:5000/createUser", formData);
 
-      if (response.status === 201) {
-        alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
-        //router.push('/login');
-      } else {
-        console.error('Erro ao cadastrar:', response.data);
-      }
+    try {
+        const response = await axios.post("http://localhost:5000/createUser", formData);
+
+        if (response.status === 201) {
+            alert("Cadastro bem-sucedido! Verifique seu e-mail para confirmar o cadastro.");
+            // router.push('/login');
+        } else {
+            console.error('Erro ao cadastrar:', response.data);
+        }
     } catch (err) {
-      console.error('Erro na requisicao:', err);
+        // Verifica se o erro é relacionado ao e-mail já existente
+        if (err.response && err.response.status === 409) {
+            alert(err.response.data.error); // Exibe a mensagem de erro do backend
+        } else {
+            console.error('Erro na requisição:', err);
+            alert('Este e-mail já está cadastrado.');
+        }
     }
-  };
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-azul60">

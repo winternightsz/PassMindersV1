@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { knex } from '../../database'; // ajuste conforme necessário
+import { knex } from '../../database';
 import { z } from 'zod';
 
 export const DeleteUser = async (app: FastifyInstance) => {

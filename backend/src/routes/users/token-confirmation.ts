@@ -11,7 +11,6 @@ export const TokenConfirmation = async (app: FastifyInstance) => {
         try {
             const { token } = paramsSchema.parse(request.params);
 
-            // Verifica se o token está correto
             const user = await knex('Usuario').where({ token }).first();
 
             if (!user) {
@@ -23,7 +22,7 @@ export const TokenConfirmation = async (app: FastifyInstance) => {
             return reply.redirect('http://localhost:3000/login');
 
         } catch (error) {
-            console.error(error); // Adiciona um log para depuração
+            console.error(error);
             return reply.status(400).send({ error: 'Erro ao confirmar e-mail' });
         }
     });

@@ -4,41 +4,35 @@ import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
 
-// Configurando o transporte SMTP
 const smtp = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
         user: "gremabr007@gmail.com",
-        pass: "tubt uzng vpha iuie" // **Lembre-se de usar senhas específicas para aplicativos**
+        pass: "tubt uzng vpha iuie" 
     }
 });
 
 export const CreateUser = async (app: FastifyInstance) => {
     app.post('/createUser', async (request: FastifyRequest, reply: FastifyReply) => {
         try {
-            // Definindo o esquema de validação do usuário
             const Usuario = z.object({
                 nomeUsuario: z.string(),
                 email: z.string().email(),
                 senha: z.string()
             });
 
-            // Validação dos dados do usuário
             const user = Usuario.parse(request.body);
 
-            // Verificando se o e-mail já está em uso
             const existingUser = await knex('Usuario').where({ email: user.email }).first();
             if (existingUser) {
                 return reply.status(400).send({ error: 'E-mail já cadastrado' });
             }
 
-            // Gerando o token
             const token = randomBytes(16).toString('hex');
             const confirmationLink = `http://localhost:5000/confirmationToken/${token}`;
 
-            // Dados do usuário a serem inseridos no banco de dados
             const userData = {
                 nomeUsuario: user.nomeUsuario,
                 email: user.email,
@@ -46,10 +40,8 @@ export const CreateUser = async (app: FastifyInstance) => {
                 token 
             };
 
-            // Inserindo o usuário no banco de dados
             await knex('Usuario').insert(userData);
 
-            // Configurando o e-mail
             const userMail = {
                 from: "gremabr007@gmail.com",
                 to: user.email,
@@ -66,13 +58,11 @@ export const CreateUser = async (app: FastifyInstance) => {
                     </div>`
             };
 
-            // Enviando o e-mail
             await smtp.sendMail(userMail);
 
-            // Retornando resposta de sucesso
             return reply.status(201).send({ message: 'Usuário criado com sucesso!' });
         } catch (error) {
-            console.error("Erro ao criar usuário ou enviar email:", error); // Log detalhado
+            console.error("Erro ao criar usuário ou enviar email:", error); 
             return reply.status(400).send({ error: error.errors || 'Erro ao criar usuário' });
         }
     });
