@@ -2,45 +2,74 @@ import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { knex } from '../../database';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
+import { randomBytes } from 'crypto';
 
+// Configurando o transporte SMTP
 const smtp = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, // Mude para 'false' se usar o port 587
+    secure: false, 
     auth: {
         user: "gremabr007@gmail.com",
-        pass: "tubt uzng vpha iuie"
+        pass: "tubt uzng vpha iuie" // **Lembre-se de usar senhas específicas para aplicativos**
     }
 });
 
 export const CreateUser = async (app: FastifyInstance) => {
-    app.post('/createUser', async (request, reply) => {
+    app.post('/createUser', async (request: FastifyRequest, reply: FastifyReply) => {
         try {
+            // Definindo o esquema de validação do usuário
             const Usuario = z.object({
-                email: z.string().email(),
                 nomeUsuario: z.string(),
+                email: z.string().email(),
                 senha: z.string()
             });
+
+            // Validação dos dados do usuário
             const user = Usuario.parse(request.body);
 
+            // Gerando o token
+            const token = randomBytes(16).toString('hex');
+            const confirmationLink = `http://localhost:5000/confirmationToken/${token}`;
+
+            // Dados do usuário a serem inseridos no banco de dados
+            const userData = {
+                nomeUsuario: user.nomeUsuario,
+                email: user.email,
+                senha: user.senha,
+                token: token // Adiciona o token aqui
+            };
+
+            // Inserindo o usuário no banco de dados
+            await knex('Usuario').insert(userData);
+
+            // Configurando o e-mail
             const userMail = {
                 from: "gremabr007@gmail.com",
                 to: user.email,
                 subject: "Confirmação do Cadastro - PassMinders",
-                html: '<a href="http://localhost:3000/login"> Clique aqui para confirmar seu cadastro! </a>'
+                html: `
+                    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+                        <h1 style="color: #5673D5;">Bem-vindo ao PassMinders!</h1>
+                        <p>Estamos empolgados em tê-lo conosco. Para completar seu cadastro, clique no botão abaixo:</p>
+                        <a href="${confirmationLink}" style="display: inline-block; padding: 10px 20px; background-color: #5673D5; color: white; text-decoration: none; border-radius: 5px;">Confirmar Cadastro</a>
+                        <p style="margin-top: 20px;">Se você não se inscreveu, ignore este e-mail.</p>
+                        <footer style="margin-top: 30px; font-size: 12px; color: #888;">
+                            &copy; 2024 PassMinders.
+                        </footer>
+                    </div>`
             };
 
-            // Aguarde a resolução da Promise de envio do email
+            // Enviando o e-mail
             await smtp.sendMail(userMail);
 
-            await knex('Usuario').insert(user);
-
+            // Retornando resposta de sucesso
             return reply.status(201).send({ message: 'Usuário criado com sucesso!' });
         } catch (error) {
             console.error("Erro ao criar usuário ou enviar email:", error);
             return reply.status(400).send({ error: error.errors || 'Erro ao criar usuário' });
-        } finally {
-            smtp.close(); // Feche o transporte após a operação
         }
     });
 };
+
+// Não esqueça de ajustar a rota de confirmação do e-mail e configurar o banco de dados adequadamente.
