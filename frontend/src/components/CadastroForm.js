@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import axios from "axios";
 
 const CadastroForm = () => {
   const [email, setEmail] = useState("");
@@ -18,24 +19,15 @@ const CadastroForm = () => {
   // funcao para verificar se tem email e nome de usuario duplicados
   const checkDuplicateUser = async (email, nome) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/check-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, nome }),
+      const response = await axios.post("http://localhost:5000/api/check-user", {
+        email,
+        nome,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        return data.exists; // retorna `true` se existe e `false` se nao tem
-      } else {
-        console.error('Erro ao verificar usuario:', response.status);
-        return true; // quando da erro nao faz o cadastro
-      }
+      return response.data.exists; // retorna `true` se existe e `false` se nao tem
     } catch (err) {
-      console.error('Erro na requisicao de verificacao:', err);
-      return true; 
+      console.error("Erro na requisicao de verificacao:", err);
+      return true; // quando da erro nao faz o cadastro
     }
   };
 
@@ -57,31 +49,24 @@ const CadastroForm = () => {
     }
 
     // verifica se email ou nome de usuario ja estao cadastrados
-    const isDuplicate = await checkDuplicateUser(email, nome);
-    if (isDuplicate) {
-      alert("Email ou nome de usuario ja estao cadastrados.");
-      return; // impede o cadastro se ja existe
-    }
+    //const isDuplicate = await checkDuplicateUser(email, nome);
+    //if (isDuplicate) {
+    //  alert("Email ou nome de usuario já estao cadastrados.");
+    //  return; // impede o cadastro se já existe
+    //}
 
     // dados para serem enviados para o backend
     const formData = { email, nome, password };
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      
+      const response = await axios.post("http://localhost:5000/createUser", formData);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response.status === 200) {
         alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
         router.push('/login');
       } else {
-        const error = await response.json();
-        console.error('Erro ao cadastrar:', error);
+        console.error('Erro ao cadastrar:', response.data);
       }
     } catch (err) {
       console.error('Erro na requisicao:', err);
