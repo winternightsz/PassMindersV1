@@ -28,6 +28,12 @@ export const CreateUser = async (app: FastifyInstance) => {
             // Validação dos dados do usuário
             const user = Usuario.parse(request.body);
 
+            // Verificando se o e-mail já está em uso
+            const existingUser = await knex('Usuario').where({ email: user.email }).first();
+            if (existingUser) {
+                return reply.status(400).send({ error: 'E-mail já cadastrado' });
+            }
+
             // Gerando o token
             const token = randomBytes(16).toString('hex');
             const confirmationLink = `http://localhost:5000/confirmationToken/${token}`;
