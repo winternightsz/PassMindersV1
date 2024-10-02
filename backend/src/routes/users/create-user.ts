@@ -26,14 +26,13 @@ export const CreateUser = async (app: FastifyInstance) => {
             const userMail = {
                 from: "gremabr007@gmail.com",
                 to: user.email,
-                subject: "testando envio de email",
-                html: "<button>teste</button>"
+                subject: "Confirmação do Cadastro - PassMinders",
+                html: '<a href="http://localhost:3000/login"> Clique aqui para confirmar seu cadastro! </a>'
             };
 
             // Aguarde a resolução da Promise de envio do email
             await smtp.sendMail(userMail);
 
-            // Insira o usuário no banco de dados
             await knex('Usuario').insert(user);
 
             return reply.status(201).send({ message: 'Usuário criado com sucesso!' });
