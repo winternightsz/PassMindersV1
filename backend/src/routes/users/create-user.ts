@@ -8,7 +8,7 @@ import { randomBytes } from 'crypto';
 const smtp = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
-    secure: false, 
+    secure: false,
     auth: {
         user: "gremabr007@gmail.com",
         pass: "tubt uzng vpha iuie" // **Lembre-se de usar senhas específicas para aplicativos**
@@ -37,7 +37,7 @@ export const CreateUser = async (app: FastifyInstance) => {
                 nomeUsuario: user.nomeUsuario,
                 email: user.email,
                 senha: user.senha,
-                token: token // Adiciona o token aqui
+                token // Adiciona o token aqui
             };
 
             // Inserindo o usuário no banco de dados
@@ -66,10 +66,8 @@ export const CreateUser = async (app: FastifyInstance) => {
             // Retornando resposta de sucesso
             return reply.status(201).send({ message: 'Usuário criado com sucesso!' });
         } catch (error) {
-            console.error("Erro ao criar usuário ou enviar email:", error);
+            console.error("Erro ao criar usuário ou enviar email:", error); // Log detalhado
             return reply.status(400).send({ error: error.errors || 'Erro ao criar usuário' });
         }
     });
 };
-
-// Não esqueça de ajustar a rota de confirmação do e-mail e configurar o banco de dados adequadamente.
