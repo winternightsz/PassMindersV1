@@ -11,31 +11,33 @@ const CadastroForm = () => {
   const router = useRouter();
 
   // funcao que valida a senha
-  const isPasswordValid = (password) => {
-    // Tem que ter pelo menos 8 caracteres, um numero e uma letra maiuscula
-    return /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
-  };
+   const isPasswordValid = (password) => {
+     // Tem que ter pelo menos 8 caracteres, um numero e uma letra maiuscula
+     return password.length >= 8;
+   };
 
   // funcao para verificar se tem email e nome de usuario duplicados
-  const checkDuplicateUser = async (email, nome) => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/check-user", {
-        email,
-        nome,
-      });
+  // const checkDuplicateUser = async (email, nome) => {
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/api/check-user", {
+  //       email,
+  //       nome,
+  //     });
 
-      return response.data.exists; // retorna `true` se existe e `false` se nao tem
-    } catch (err) {
-      console.error("Erro na requisicao de verificacao:", err);
-      return true; // quando da erro nao faz o cadastro
-    }
-  };
+  //     return response.data.exists; // retorna `true` se existe e `false` se nao tem
+  //   } catch (err) {
+  //     console.error("Erro na requisicao de verificacao:", err);
+  //     return true; // quando da erro nao faz o cadastro
+  //   }
+  // };
 
   // funcao que faz a requisicao para o backend e manipula a submissao do formulario
   // pra criar um novo usuario no banco de dados
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     // validacao de senha e confirmacao
     if (senha !== confirmPassword) {
       alert("As senhas nao sao iguais.");
@@ -43,17 +45,17 @@ const CadastroForm = () => {
     }
 
     // verifica se a senha atende os requisitos
-    if (!isPasswordValid(senha)) {
-      alert("A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiuscula e um numero.");
-      return;
-    }
+     if (!isPasswordValid(senha)) {
+       alert("A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiuscula e um numero.");
+       return;
+     }
 
     // verifica se email ou nome de usuario ja estao cadastrados
-    //const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
-    //if (isDuplicate) {
-    //  alert("Email ou nome de usuario já estao cadastrados.");
-    //  return; // impede o cadastro se já existe
-    //}
+    // const isDuplicate = await checkDuplicateUser(email, nomeUsuario);
+    // if (isDuplicate) {
+    //   alert("Email ou nome de usuario já estao cadastrados.");
+    //   return; // impede o cadastro se já existe
+    // }
 
     // dados para serem enviados para o backend
     const formData = { email, nomeUsuario, senha };
@@ -62,7 +64,7 @@ const CadastroForm = () => {
       
       const response = await axios.post("http://localhost:5000/createUser", formData);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("Cadastro bem-sucedido! Verifique seu email para confirmar o cadastro.");
         router.push('/login');
       } else {
