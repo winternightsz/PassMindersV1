@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [senha, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
@@ -13,22 +13,19 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Ajustar os dados para enviar ao backend
     const formData = {
-      email,
+      emailOrUsername, 
       senha
     };
 
     try {
-      
-      const response = await axios.post('http://localhost:5000/login', formData);
+      // Ajustar o endpoint para corresponder ao backend
+      const response = await axios.post('http://localhost:5000/authUser', formData);
 
       if (response.status === 200) {
-        const token = response.data.token; // supondo que o token JWT seja retornado como 'token'
-
-        // armazenar o token no localStorage
-        localStorage.setItem('authToken', token);
-
-        // redirecionar para a página principal após login bem-sucedido
+        alert("Login feito com sucesso!");
+        
         router.push('/mainp');
       } else {
         setErrorMessage(response.data.message || 'Erro ao fazer login');
@@ -54,22 +51,22 @@ const LoginForm = () => {
             )}
             {/* Formulário */}
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {/* Campo de E-mail */}
+              {/* Campo de E-mail ou Nome de Usuário */}
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor="emailOrUsername"
                   className="block mb-2 text-base font-medium text-azul10"
                 >
                   Seu e-mail ou Nome de Usuário
                 </label>
                 <input
                   type="text"
-                  name="email"
+                  name="emailOrUsername" // Ajustado para corresponder ao backend
                   className="!bg-azul60 border border-gray-300 text-azul10 rounded-lg focus:ring-azul10 focus:border-azul10 block w-full p-2.5"
                   placeholder="email@exemplo.com ou @username"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={emailOrUsername}
+                  onChange={(e) => setEmailOrUsername(e.target.value)}
                 />
               </div>
               {/* Campo de Senha */}
