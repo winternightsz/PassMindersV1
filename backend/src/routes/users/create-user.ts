@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyRequest } from "fastify";
 import { knex } from '../../database';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
@@ -15,7 +15,7 @@ const smtp = nodemailer.createTransport({
 });
 
 export const CreateUser = async (app: FastifyInstance) => {
-    app.post('/createUser', async (request: FastifyRequest, reply: FastifyReply) => {
+    app.post('/createUser', async (request: FastifyRequest, reply) => {
         try {
             const Usuario = z.object({
                 nomeUsuario: z.string(),

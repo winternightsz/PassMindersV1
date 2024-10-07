@@ -3,8 +3,9 @@ import cors from '@fastify/cors'
 import { routes } from './routes/routes'
 
 export const app = fastify()
-app.register(routes)
+
 app.register(cors,{})
+app.register(routes)
 
 app.listen({port: 5000}, (err,address) =>{
     if (err){

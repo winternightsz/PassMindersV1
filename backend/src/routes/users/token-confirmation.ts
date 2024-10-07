@@ -1,9 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyInstance, FastifyRequest } from 'fastify'
 import { knex } from '../../database'
 import { z } from 'zod'
 
 export const TokenConfirmation = async (app: FastifyInstance) => {
-    app.get('/confirmationToken/:token', async (request: FastifyRequest, reply: FastifyReply) => {
+    app.get('/confirmationToken/:token', async (request: FastifyRequest, reply) => {
         const paramsSchema = z.object({
             token: z.string(),
         });

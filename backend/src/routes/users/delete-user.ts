@@ -1,9 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { knex } from '../../database';
 import { z } from 'zod';
 
 export const DeleteUser = async (app: FastifyInstance) => {
-    app.delete('/deleteUser/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+    app.delete('/deleteUser/:id', async (request: FastifyRequest, reply) => {
         try {
             const paramsSchema = z.object({
                 id: z.string(), 

@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance} from "fastify";
 import { knex } from '../../database'
 
 export const FindAllUsers = async (app: FastifyInstance) =>{

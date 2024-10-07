@@ -1,9 +1,9 @@
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
+import { FastifyInstance, FastifyRequest } from "fastify"
 import { knex } from '../../database'
 import { z } from 'zod'
 
 export const LoginUser = async (app: FastifyInstance) => {
-    app.post('/loginUser', async (request: FastifyRequest, reply: FastifyReply) => {
+    app.post('/loginUser', async (request: FastifyRequest, reply) => {
         const schema = z.object({
             email: z.string().email(),
             senha: z.string()
