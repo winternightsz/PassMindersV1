@@ -1,5 +1,8 @@
 # CREATE SCHEMA passMinders;
 USE passMinders;
+
+# ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '12345';
+
 CREATE TABLE Usuario (
         id             INT NOT NULL AUTO_INCREMENT
       , email         VARCHAR(100)
@@ -10,12 +13,18 @@ CREATE TABLE Usuario (
     , PRIMARY KEY (id)
 );
 
-drop table Usuario;
-
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '12345';
-
 select * from Usuario;
 
+select * from Pasta;
+
+CREATE TABLE Pasta (
+          id       INT NOT NULL AUTO_INCREMENT
+        , nome     VARCHAR(100)
+        , email    VARCHAR(100)
+        , telefone INT 
+        , senha    VARCHAR(50)
+      , PRIMARY KEY (id)
+);
 
 CREATE TABLE AtividadeSuspeita (
         id                     INT NOT NULL AUTO_INCREMENT
@@ -25,11 +34,6 @@ CREATE TABLE AtividadeSuspeita (
     , PRIMARY KEY (id)
 );
 
-CREATE TABLE Pasta (
-          id         INT NOT NULL AUTO_INCREMENT
-        , nome     VARCHAR(100)
-      , PRIMARY KEY (id)
-);
 
 CREATE TABLE Conta (
         id                 INT NOT NULL AUTO_INCREMENT

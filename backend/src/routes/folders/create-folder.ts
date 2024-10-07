@@ -6,7 +6,10 @@ export const CreateFolder = async (app: FastifyInstance) => {
     app.post('/createFolder', async (request: FastifyRequest, reply) => {
         try {
             const FolderSchema = z.object({
-                nome: z.string().min(1, "O nome da pasta é obrigatório.")
+                nome: z.string().min(1, "O nome da pasta é obrigatório."),
+                email: z.string().email("E-mail inválido."),
+                telefone: z.string().min(10, "O telefone deve ter pelo menos 10 dígitos."),
+                senha: z.string()
             });
 
             const folder = FolderSchema.parse(request.body);
@@ -16,7 +19,12 @@ export const CreateFolder = async (app: FastifyInstance) => {
                 return reply.status(400).send({ error: 'Uma pasta com este nome já existe' });
             }
 
-            const [id] = await knex('Pasta').insert({ nome: folder.nome });
+            const [id] = await knex('Pasta').insert({
+                nome: folder.nome,
+                email: folder.email,
+                telefone: folder.telefone,
+                senha: folder.senha 
+            });
 
             const pastaCriada = await knex('Pasta').where({ id }).first();
             return reply.status(201).send(pastaCriada);
@@ -26,6 +34,7 @@ export const CreateFolder = async (app: FastifyInstance) => {
             if (error instanceof z.ZodError) {
                 return reply.status(400).send({ error: error.errors });
             }
+            return reply.status(400).send({ error: 'Erro ao criar pasta' });
         }
     });
 };

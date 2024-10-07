@@ -24,7 +24,7 @@ const LoginForm = () => {
 
       if (response.status === 200) {
         alert("Login feito com sucesso!");
-        router.push('/');
+        router.push('/mainp');
       } else {
         setErrorMessage(response.data.message || 'Erro ao fazer login');
       }
