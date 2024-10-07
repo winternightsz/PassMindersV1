@@ -1,68 +1,58 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
-
-
-//uma ideia pra como poder fazer uma pagina segura usando token
-
+import { useEffect, useState } from 'react';
+import Sidebar from '../../components/Sidebar';
+import CreateFolder from '../../components/CreateFolder';
+import api from '@/app/services/api';
+import FolderDetail from '../../components/FolderDetail';
+import { getFolders, createFolder } from '@/app/services/api'; // Importa as funções do mock ou backend
 
 const MainPage = () => {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const router = useRouter();
+  const [folders, setFolders] = useState([]);
+  const [creatingFolder, setCreatingFolder] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      // Verifica se o token existe no localStorage
-      const token = localStorage.getItem('authToken');
+    // Buscar pastas do "backend"
+    getFolders()
+      .then(response => setFolders(response.data))
+      .catch(error => console.error('Erro ao buscar pastas:', error));
+  }, []);
 
-      if (!token) {
-        // Redireciona para a página de login se não houver token
-        router.push('/login');
-        return;
-      }
+  const handleCreateFolder = (data) => {
+    if (!data) {
+      setCreatingFolder(false);
+      return;
+    }
 
-      try {
-        // Faz uma requisição ao backend para pegar os dados do usuário
-        const response = await fetch('http://localhost:5000/api/user', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Adiciona o token ao header
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data); // Armazena os dados do usuário no estado
-        } else {
-          // Redireciona para login se o token estiver inválido ou expirado
-          router.push('/login');
+    // Criar nova pasta no "backend"
+    createFolder(data)
+      .then(response => {
+        if (!folders.find(folder => folder.id === response.data.id)) {
+          setFolders([...folders, response.data]);
         }
-      } catch (err) {
-        setError('Erro ao buscar dados do usuário');
-      } finally {
-        setLoading(false); // Finaliza o carregamento
-      }
-    };
+        setSelectedFolder(response.data); // Navegar automaticamente para a pasta criada
+        setCreatingFolder(false);
+      })
+      .catch(error => console.error('Erro ao criar pasta:', error));
+  };
 
-    fetchUserData();
-  }, [router]);
-
-  if (loading) return <p>Carregando...</p>;
-  if (error) return <p>{error}</p>;
+  const handleSelectFolder = (folder) => {
+    setSelectedFolder(folder);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-azul60">
-      <h1 className="text-4xl font-bold text-azul10">Bem-vindo, {userData?.nome}!</h1>
-      <p className="text-azul10 mt-4">Aqui estão seus dados personalizados:</p>
-      
-      {/* Renderiza as informações privadas do usuário */}
-      <div className="bg-branco30 p-4 rounded-3xl shadow-lg w-full max-w-xl mt-6">
-        <p><strong>Email:</strong> {userData?.email}</p>
-        {/* Adicione outros dados que você queira mostrar */}
+    <div className="flex h-screen">
+      <Sidebar folders={folders} onSelectFolder={handleSelectFolder} />
+      <div className="flex-1 flex justify-center items-center bg-blue-100">
+        {selectedFolder ? (
+          <FolderDetail folder={selectedFolder} />
+        ) : creatingFolder ? (
+          <CreateFolder onCreate={handleCreateFolder} />
+        ) : (
+          <button onClick={() => setCreatingFolder(true)} className="text-blue-500 text-6xl">
+            +
+          </button>
+        )}
       </div>
     </div>
   );
