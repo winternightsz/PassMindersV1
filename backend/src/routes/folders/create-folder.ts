@@ -7,9 +7,6 @@ export const CreateFolder = async (app: FastifyInstance) => {
         try {
             const FolderSchema = z.object({
                 nome: z.string().min(1, "O nome da pasta é obrigatório."),
-                email: z.string().email("E-mail inválido."),
-                telefone: z.string().min(10, "O telefone deve ter pelo menos 10 dígitos."),
-                senha: z.string()
             });
 
             const folder = FolderSchema.parse(request.body);
@@ -21,9 +18,6 @@ export const CreateFolder = async (app: FastifyInstance) => {
 
             const [id] = await knex('Pasta').insert({
                 nome: folder.nome,
-                email: folder.email,
-                telefone: folder.telefone,
-                senha: folder.senha 
             });
 
             const pastaCriada = await knex('Pasta').where({ id }).first();

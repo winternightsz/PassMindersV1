@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
-import { suggestions } from '@/app/data/sugestoesDados'; // Vamos assumir que existe uma lista de sugestões.
+import axios from 'axios'; // Importa axios para fazer a requisição
+import { suggestions } from '@/app/data/sugestoesDados';
 
 const CreateFolder = ({ onCreate }) => {
   const [folderName, setFolderName] = useState('');
@@ -8,7 +9,6 @@ const CreateFolder = ({ onCreate }) => {
   const [accountName, setAccountName] = useState('');
   const [accountDetails, setAccountDetails] = useState({ email: '', senha: '' });
 
-  // Adiciona uma conta personalizada à lista
   const handleAddCustomAccount = () => {
     if (accountName) {
       setCustomAccounts([...customAccounts, { name: accountName, details: accountDetails }]);
@@ -18,16 +18,24 @@ const CreateFolder = ({ onCreate }) => {
   };
 
   // Cria a pasta com todas as contas (sugeridas + personalizadas)
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (folderName.trim()) {
       const data = {
         folderName,
         accounts: customAccounts,
         // Aqui também seriam adicionadas as sugestões selecionadas.
       };
-      onCreate(data);
-      setFolderName('');
-      setCustomAccounts([]);
+
+      try {
+        const response = await axios.post('/createFolder', data); // Chama a rota do backend
+        console.log('Pasta criada com sucesso:', response.data);
+        onCreate(data); // Chama a função de callback para atualizar o estado no componente pai
+        setFolderName('');
+        setCustomAccounts([]);
+      } catch (error) {
+        console.error('Erro ao criar a pasta:', error);
+        // Você pode exibir um erro para o usuário aqui, se desejar
+      }
     }
   };
 

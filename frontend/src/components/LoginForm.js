@@ -23,7 +23,6 @@ const LoginForm = () => {
       const response = await axios.post('http://localhost:5000/loginUser', formData);
 
       if (response.status === 200) {
-        alert("Login feito com sucesso!");
         router.push('/mainp');
       } else {
         setErrorMessage(response.data.message || 'Erro ao fazer login');

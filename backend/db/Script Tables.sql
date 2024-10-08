@@ -20,11 +20,9 @@ select * from Pasta;
 CREATE TABLE Pasta (
           id       INT NOT NULL AUTO_INCREMENT
         , nome     VARCHAR(100)
-        , email    VARCHAR(100)
-        , telefone INT 
-        , senha    VARCHAR(50)
       , PRIMARY KEY (id)
 );
+
 
 CREATE TABLE AtividadeSuspeita (
         id                     INT NOT NULL AUTO_INCREMENT
