@@ -44,12 +44,8 @@ const MainPage = () => {
     <div className="flex h-screen">
       <Sidebar folders={folders} onSelectFolder={handleSelectFolder} />
       <div className="flex-1 flex justify-center items-center bg-blue-100">
-        {selectedFolder ? (
-          <FolderDetail folder={selectedFolder} />
-        ) : creatingFolder ? (
-          <CreateFolder onCreate={handleCreateFolder} />
-        ) : (
-          <button onClick={() => setCreatingFolder(true)} className="text-blue-500 text-6xl">
+        {selectedFolder ? (<FolderDetail folder={selectedFolder} />) : creatingFolder ? (
+          <CreateFolder onCreate={handleCreateFolder} />) : (<button onClick={() => setCreatingFolder(true)} className="text-blue-500 text-6xl">
             +
           </button>
         )}
