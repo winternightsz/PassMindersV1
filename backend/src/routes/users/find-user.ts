@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import { knex } from '../../database'
 import { z } from 'zod'
+import { User } from '../../models/User'
 
 export const FindUser = async (app: FastifyInstance) => {
     app.get('/findUser/:id', async (request: FastifyRequest, reply) => {
@@ -12,7 +13,7 @@ export const FindUser = async (app: FastifyInstance) => {
             const { id: idString } = paramsSchema.parse(request.params)
             const id = parseInt(idString, 10)
 
-            const result = await knex('Usuario').where({ id }).select("*")
+            const result = await knex<User>('Usuario').where({ id }).select("*")
 
           
             if (result.length === 0) {

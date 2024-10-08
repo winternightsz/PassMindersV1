@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest } from "fastify"
 import { knex } from '../../database'
 import { z } from 'zod'
+import { User } from "../../models/User"
 
 export const LoginUser = async (app: FastifyInstance) => {
     app.post('/loginUser', async (request: FastifyRequest, reply) => {
@@ -12,7 +13,7 @@ export const LoginUser = async (app: FastifyInstance) => {
         try {
             const { email, senha } = schema.parse(request.body)
 
-            const user = await knex('Usuario').where({ email, senha }).first()
+            const user = await knex<User>('Usuario').where({ email, senha }).first()
 
             if (!user) {
                 return reply.status(401).send({ error: 'Credenciais inválidas' })

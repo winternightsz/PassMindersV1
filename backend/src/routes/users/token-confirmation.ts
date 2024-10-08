@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import { knex } from '../../database'
 import { z } from 'zod'
+import { User } from '../../models/User';
 
 export const TokenConfirmation = async (app: FastifyInstance) => {
     app.get('/confirmationToken/:token', async (request: FastifyRequest, reply) => {
@@ -11,13 +12,13 @@ export const TokenConfirmation = async (app: FastifyInstance) => {
         try {
             const { token } = paramsSchema.parse(request.params);
 
-            const user = await knex('Usuario').where({ token }).first();
+            const user = await knex<User>('Usuario').where({ token }).first();
 
             if (!user) {
                 return reply.status(404).send({ error: 'Token de confirmação inválido' });
             }
 
-            await knex('Usuario').where({ id: user.id }).update({ contaAtiva: true });
+            await knex<User>('Usuario').where({ id: user.id }).update({ contaAtiva: true });
 
             return reply.redirect('http://localhost:3000/login');
 
