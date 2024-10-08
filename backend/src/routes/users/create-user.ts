@@ -3,6 +3,7 @@ import { knex } from '../../database';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
+import { User } from "../../models/User";
 
 const smtp = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -25,7 +26,7 @@ export const CreateUser = async (app: FastifyInstance) => {
 
             const user = Usuario.parse(request.body);
 
-            const existingUser = await knex('Usuario').where({ email: user.email }).first();
+            const existingUser = await knex<User>('Usuario').where({ email: user.email }).first();
             if (existingUser) {
                 return reply.status(400).send({ error: 'E-mail já cadastrado' });
             }
@@ -40,7 +41,7 @@ export const CreateUser = async (app: FastifyInstance) => {
                 token 
             };
 
-            await knex('Usuario').insert(userData);
+            await knex<User>('Usuario').insert(userData);
 
             const userMail = {
                 from: "gremabr007@gmail.com",
