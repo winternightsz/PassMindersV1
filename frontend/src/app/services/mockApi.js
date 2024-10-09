@@ -3,32 +3,45 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Dados simulados
 let folders = [
-  // Exemplo de pasta inicial (pode ser vazio)
+  // Exemplo de pasta inicial
+  {
+    id: uuidv4(),
+    name: 'Redes Sociais',
+    accounts: [
+      { id: uuidv4(), name: 'Facebook', email: 'user@facebook.com', senha: '12345' },
+      { id: uuidv4(), name: 'Instagram', email: 'user@instagram.com', senha: '67890' }
+    ]
+  },
   { id: uuidv4(), name: 'Pasta de Teste', accounts: [] }
 ];
 
 // Função para simular o atraso de uma requisição
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Funções simuladas
 const mockApi = {
   getFolders: async () => {
-    await delay(500); // Simula atraso de requisição
+    await delay(500);
     return { data: folders };
   },
+  
   createFolder: async (folderData) => {
     await delay(500);
-    const newFolder = { id: uuidv4(), name: folderData.folderName, accounts: folderData.accounts || [] };
+    const newFolder = {
+      id: uuidv4(),
+      name: folderData.name, // Certifique-se de que 'name' está sendo usado
+      accounts: folderData.accounts || []
+    };
     folders.push(newFolder);
     return { data: newFolder };
   },
+
   getAccounts: async (folderId) => {
     await delay(500);
     const folder = folders.find(f => f.id === folderId);
     return { data: folder ? folder.accounts : [] };
   },
+
   createAccount: async (folderId, accountData) => {
-    await delay(500);
     const folder = folders.find(f => f.id === folderId);
     if (folder) {
       const newAccount = { id: uuidv4(), ...accountData };
@@ -40,3 +53,4 @@ const mockApi = {
 };
 
 export default mockApi;
+
