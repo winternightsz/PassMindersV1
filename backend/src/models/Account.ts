@@ -1,6 +1,8 @@
 export interface Account{
     id: number
-    titulo: string
-    usuario: string
+    id_pasta: number
+    email: string
+    nome: string
     senha: string
+    outro: string
 }
