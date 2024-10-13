@@ -55,7 +55,7 @@ const Sidebar = ({ onSelectFolder, onCreateFolder }) => {
       <div className="flex flex-col items-center">
         
         {/* Botão "+" para adicionar pastas */}
-        <a href="/logout" className="text-azul10 font-bold text-sm">
+        <a href="/login" className="text-azul10 font-bold text-sm">
           Sair
         </a>{" "}
         {/* Botão de logout */}

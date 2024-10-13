@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { createFolder, createAccount } from "@/app/services/api";
-import { suggestions } from "@/app/data/sugestoesDados";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-const CreateFolder = ({ onCreate }) => {
+
+const CreateFolder = () => {
   const [nome, setName] = useState(""); // Nome da pasta
   const [customAccounts, setCustomAccounts] = useState([]); // Contas personalizadas
   const [newAccountFields, setNewAccountFields] = useState([]); // Campos dinâmicos para nova conta
@@ -12,29 +13,23 @@ const CreateFolder = ({ onCreate }) => {
   const [customFieldName, setCustomFieldName] = useState(""); // Nome do campo personalizado
   const [errorMessage, setErrorMessage] = useState(""); // Mensagem de erro
   const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar o envio duplo
+  const router = useRouter(); // Para redirecionar após a criação da pasta
 
   // Função para adicionar um campo de informação dinâmico
   const addNewField = (fieldType) => {
     if (fieldType === "outro") {
-      setCustomFieldModalOpen(true); // Abre o segundo modal para campo personalizado
+      setCustomFieldModalOpen(true); // Abre o modal para campo personalizado
     } else {
-      setNewAccountFields([
-        ...newAccountFields,
-        { label: fieldType, value: "" },
-      ]);
+      setNewAccountFields([...newAccountFields, { label: fieldType, value: "" }]);
       setFieldOptionModalOpen(false); // Fecha o modal de seleção de campo
     }
   };
 
   // Função para o modal do campo personalizado
   const handleCustomFieldSubmit = () => {
-    setNewAccountFields([
-      ...newAccountFields,
-      { label: customFieldName, value: "" },
-    ]);
+    setNewAccountFields([...newAccountFields, { label: customFieldName, value: "" }]);
     setCustomFieldName(""); // Limpa o campo
-    setFieldOptionModalOpen(false); //fecha o primeiro modal
-    setCustomFieldModalOpen(false); // Fecha o segundo modal
+    setCustomFieldModalOpen(false); // Fecha o modal
   };
 
   // Atualiza o valor dos campos dinâmicos
@@ -46,84 +41,71 @@ const CreateFolder = ({ onCreate }) => {
 
   // Adiciona conta personalizada
   const handleAddCustomAccount = () => {
-    const accountData = {
-      dados: newAccountFields, // Usa "dados" para enviar os pares label e value
-    };
-
-    setCustomAccounts([...customAccounts, accountData]);
-    setNewAccountFields([]); // Reseta os campos
+    if (newAccountFields.length > 0) {
+      const accountData = {
+        dados: newAccountFields, // Usa "dados" para enviar os pares label e value
+      };
+      setCustomAccounts([...customAccounts, accountData]);
+      setNewAccountFields([]); // Reseta os campos
+    } else {
+      setErrorMessage("Adicione pelo menos um campo antes de adicionar a conta.");
+    }
   };
 
-  // Submissão da criação da pasta e conta
   const handleSubmit = async () => {
-    if (isSubmitting) return; // Se já estiver enviando, bloqueia a função
-    setIsSubmitting(true); // Desabilita o envio múltiplo
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     if (!nome.trim()) {
       setErrorMessage("O nome da pasta não pode ser vazio.");
-      setIsSubmitting(false); // Permite novo envio após erro
+      setIsSubmitting(false);
       return;
     }
 
     const data = {
       nome: nome,
-      accounts:
-        customAccounts.length > 0
-          ? customAccounts.map((account) => ({
-              dados: account.dados, // Certifique-se de que o formato "dados" seja enviado corretamente
-            }))
-          : [],
+      accounts: customAccounts.length > 0 ? customAccounts.map((account) => ({ dados: account.dados })) : [{ dados: [{ label: 'default', value: '' }] }],
     };
 
+    console.log("Dados enviados:", data);
+
     try {
-      // Adiciona logs para monitorar o processo de criação da pasta
-      console.log("Tentando criar pasta:", data);
+      const response = await axios.post("http://localhost:5000/createFolder", data);
 
-      const folderResponse = await createFolder(data);
-      console.log("Pasta criada com sucesso:", folderResponse.data);
-
-      // Teste sem a criação de contas para isolar o problema
-      /*
-      if (customAccounts.length > 0) {
-        for (const account of customAccounts) {
-          await createAccount(folderResponse.data.id, { dados: account.dados });
-        }
+      if (response.status === 201) {
+        alert("Pasta criada com sucesso!");
+        router.push('/mainp');
+      } else {
+        console.error('Erro ao criar a pasta:', response.data);
+        setErrorMessage('Erro ao criar a pasta. Tente novamente.');
       }
-      */
-
-      onCreate(folderResponse.data); // Navega automaticamente para a pasta criada
-      setName("");
-      setCustomAccounts([]);
-      setErrorMessage("");
-    } catch (error) {
-      console.error("Erro ao criar a pasta:", error);
-      console.log("Base URL:", process.env.NEXT_PUBLIC_BACKEND_URL);
+    } catch (err) {
+      console.error('Erro na requisição:', err);
+      setErrorMessage('Erro ao criar a pasta. Tente novamente.');
     } finally {
-      setIsSubmitting(false); // Permite novo envio após conclusão
+      setIsSubmitting(false);
     }
   };
 
+
   return (
-    <div className="bg-transparent p-8 rounded-lg  w-full max-w-4xl">
-      {/* <h2 className="text-4xl text-gray-700 mb-4">Nome da pasta</h2> */}
+    <div className="bg-transparent p-8 rounded-lg w-full max-w-4xl">
       {errorMessage && (
         <div className="text-red-500 mb-4">
           {errorMessage}
         </div>
       )}
-    <div class="relative">
       {/* Input para nome da pasta */}
-      {/* <h1 className="text-4xl pb-7 text-gray-400 absolute">Nome da pasta</h1> */}
-      <input
-        type="text"
-        placeholder="Nome da pasta"
-        value={nome}
-        onChange={(e) => setName(e.target.value)}
-        className="bg-transparent border-none text-4xl w-full !focus:outline-none  text-gray-700"
-      />
-      
-      <div class="absolute bottom-1 left-0 w-full h-0.5 bg-azul10"></div>
-    </div>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Nome da pasta"
+          value={nome}
+          onChange={(e) => setName(e.target.value)}
+          className="bg-transparent border-none text-4xl w-full !focus:outline-none text-gray-700"
+        />
+        <div className="absolute bottom-1 left-0 w-full h-0.5 bg-azul10"></div>
+      </div>
       {/* Campos dinâmicos para contas personalizadas */}
       <div className="mb-8">
         <h3 className="text-2xl text-branco30 mb-4">Adicionar Conta Personalizada</h3>
@@ -162,11 +144,11 @@ const CreateFolder = ({ onCreate }) => {
 
       {/* Sugestões de contas */}
       <div className="mb-8">
-      <div class="relative">
-        <h3 className="text-4xl text-branco30 mb-4">Sugestões</h3>
-        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-azul10"></div>
-      </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="relative">
+          <h3 className="text-4xl text-branco30 mb-4">Sugestões</h3>
+          <div className="absolute bottom-0 left-0 w-full h-0.5 bg-azul10"></div>
+        </div>
+        {/* <div className="grid grid-cols-3 gap-4">
           {suggestions.map((suggestion) => (
             <div
               key={suggestion.name}
@@ -183,7 +165,7 @@ const CreateFolder = ({ onCreate }) => {
               </button>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* Primeiro modal: Seleção de tipo de campo */}
@@ -219,7 +201,7 @@ const CreateFolder = ({ onCreate }) => {
             </div>
             <button
               onClick={() => setFieldOptionModalOpen(false)}
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg w-full"
+              className="mt-4 text-gray-600 underline"
             >
               Cancelar
             </button>
@@ -231,22 +213,23 @@ const CreateFolder = ({ onCreate }) => {
       {customFieldModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl mb-4">Nome do tipo de informação</h3>
+            <h3 className="text-xl mb-4">Campo Personalizado</h3>
             <input
               type="text"
               value={customFieldName}
               onChange={(e) => setCustomFieldName(e.target.value)}
-              className="border p-2 w-full mb-4 rounded-md"
+              className="border p-2 w-full mb-4"
+              placeholder="Nome do campo"
             />
             <button
               onClick={handleCustomFieldSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg w-full mb-2"
+              className="bg-azul10 text-white px-4 py-2 rounded-lg"
             >
               Adicionar
             </button>
             <button
               onClick={() => setCustomFieldModalOpen(false)}
-              className="bg-red-500  text-white px-4 py-2 rounded-lg w-full"
+              className="mt-4 text-gray-600 underline"
             >
               Cancelar
             </button>
@@ -254,15 +237,12 @@ const CreateFolder = ({ onCreate }) => {
         </div>
       )}
 
-      {/* Botão de criar pasta */}
+      {/* Botão para criar a pasta */}
       <button
         onClick={handleSubmit}
-        disabled={isSubmitting} // Previne múltiplos cliques
-        className={`bg-azul10 text-white px-6 py-3 rounded-lg w-full mt-4 ${
-          isSubmitting ? "opacity-50" : ""
-        }`}
+        className="bg-azul10 text-white px-4 py-2 rounded-lg"
       >
-        {isSubmitting ? "Criando..." : "Criar"}
+        Criar Pasta
       </button>
     </div>
   );
