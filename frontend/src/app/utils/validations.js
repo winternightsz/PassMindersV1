@@ -1,11 +1,11 @@
 // validations.js
 
-// Verificar se o campo está vazio
+// verificar se o campo tá vazio
 export const isNotEmpty = (value) => {
     return value.trim() !== '';
   };
   
-  // Verificar se o email tem o formato correto
+  // verifica se o email tem o formato certo
   export const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);

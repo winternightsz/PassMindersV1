@@ -1,28 +1,28 @@
 import axios from 'axios';
 
-// Instância Axios para o backend real
+
 const api = axios.create({
-    baseURL: 'http://localhost:5000', // Coloque aqui a URL do seu backend
+    baseURL: 'http://localhost:5000', 
   });
 
-// Função para buscar todas as contas de uma pasta específica
+// usado no foldersDetails
 export const getAccounts = (folderId) => {
-  return api.get(`/findAccounts/${folderId}`);  // Ajuste da rota para buscar contas por pasta
+  return api.get(`/findAccounts/${folderId}`);  
 };
 
-// Função para criar uma nova conta
+// usado no foldersDetails
 export const createAccount = (accountData) => {
-  return api.post('/createAccount', accountData);  // Post para criar conta
+  return api.post('/createAccount', accountData);  
 };
 
-// Função para buscar todas as pastas
+// usado no mainpage
 export const getFolders = () => {
-  return api.get('/findFolders');  // Rota para buscar todas as pastas
+  return api.get('/findFolders');  
 };
 
-// Função para criar uma nova pasta
+// usado no createFolder
 export const createFolder = (data) => {
-  return api.post('/createFolder', data);  // Post para criar pasta
+  return api.post('/createFolder', data);  
 };
 
 export default api;
