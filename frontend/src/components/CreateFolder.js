@@ -19,7 +19,7 @@ const CreateFolder = ({ onCreate, onBack }) => {
 
   // Função para adicionar um campo de informação dinâmico
   const addNewField = (fieldType) => {
-    if (fieldType === "outro") {
+    if (fieldType === "Outro") {
       setCustomFieldModalOpen(true); // Abre o modal para campo personalizado
     } else {
       setNewAccountFields([
@@ -50,7 +50,7 @@ const CreateFolder = ({ onCreate, onBack }) => {
 
   // aqui que adiciona conta personalizada na pasta 
   const handleAddCustomAccount = () => {
-    const emailField = newAccountFields.find(field => field.label === "email");
+  const emailField = newAccountFields.find(field => field.label === "Email");
   
   // Verificar se o campo de email existe e é válido
   if (emailField && !isValidEmail(emailField.value)) {
@@ -67,6 +67,7 @@ const CreateFolder = ({ onCreate, onBack }) => {
       setCustomAccounts([...customAccounts, accountData]);
       setNewAccountFields([]); // Reseta os campos
       setTitulo(""); // Limpa o título
+      setErrorMessage(""); 
     } else {
       setErrorMessage("Preencha o título da conta e adicione pelo menos um campo.");
     }
@@ -124,7 +125,7 @@ const CreateFolder = ({ onCreate, onBack }) => {
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
       
       {/* Input para nome da pasta */}
-      <div className="relative">
+      <div className="relative mb-8">
         <input
           type="text"
           placeholder="Nome da pasta"
@@ -136,13 +137,12 @@ const CreateFolder = ({ onCreate, onBack }) => {
       </div>
 
       {/* Campos dinâmicos para contas personalizadas */}
-      <div className="mb-8">
-        <h3 className="text-2xl text-branco30 mb-4">Adicionar Conta Personalizada</h3>
+      <div className="mb-8">        
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-          
+        <h3 className="text-2xl text-azul10 mb-4">Adicionar Conta</h3>  
           {/* Campo para o título da conta */}
           <div className="mb-2">
-            <label>Título da Conta</label>
+            <label className="text-azul10 mr-2">Título da Conta</label>
             <input
               type="text"
               value={titulo}
@@ -153,13 +153,13 @@ const CreateFolder = ({ onCreate, onBack }) => {
           </div>
 
           {newAccountFields.map((field, index) => (
-            <div key={index} className="flex mb-2">
-              <label className="text-gray-600 mr-2">{field.label}</label>
+            <div key={index} className="flex flex-col mb-2">
+              <label className="text-azul10 mr-2">{field.label}</label>
               <input
                 type="text"
                 value={field.value}
                 onChange={(e) => handleInputChange(index, e.target.value)}
-                className="border p-2 w-full rounded-md"
+                className="border  p-2 w-full rounded-md"
               />
             </div>
           ))}
@@ -189,26 +189,20 @@ const CreateFolder = ({ onCreate, onBack }) => {
             <h3 className="text-xl mb-4">Selecione o tipo de informação</h3>
             <div className="flex flex-col space-y-4">
               <button
-                onClick={() => addNewField("email")}
+                onClick={() => addNewField("Email")}
                 className="bg-azul10 text-white px-4 py-2 rounded-lg"
               >
                 Email
               </button>
               <button
-                onClick={() => addNewField("nome")}
-                className="bg-azul10 text-white px-4 py-2 rounded-lg"
-              >
-                Nome
-              </button>
-              <button
-                onClick={() => addNewField("senha")}
+                onClick={() => addNewField("Senha")}
                 className="bg-azul10 text-white px-4 py-2 rounded-lg"
               >
                 Senha
               </button>
               <button
-                onClick={() => addNewField("outro")}
-                className="bg-azul10 text-white px-4 py-2 rounded-lg"
+                onClick={() => addNewField("Outro")}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg"
               >
                 Outro
               </button>
@@ -227,17 +221,18 @@ const CreateFolder = ({ onCreate, onBack }) => {
       {customFieldModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl mb-4">Campo Personalizado</h3>
+            <h3 className="text-xl mb-4">Nome do tipo de informação</h3>
             <input
               type="text"
               value={customFieldName}
               onChange={(e) => setCustomFieldName(e.target.value)}
               className="border p-2 w-full mb-4"
-              placeholder="Nome do campo"
+              placeholder="Nome da informação"
             />
+            <div className="flex flex-row justify-between items-center space-x-4">
             <button
               onClick={handleCustomFieldSubmit}
-              className="bg-azul10 text-white px-4 py-2 rounded-lg"
+              className="bg-green-500 text-white px-4 py-2 rounded-lg"
             >
               Adicionar
             </button>
@@ -247,6 +242,7 @@ const CreateFolder = ({ onCreate, onBack }) => {
             >
               Cancelar
             </button>
+            </div>
           </div>
         </div>
       )}

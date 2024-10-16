@@ -8,6 +8,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [addingAccount, setAddingAccount] = useState(false);
   const [newAccountFields, setNewAccountFields] = useState([]); // Campos dinâmicos
   const [titulo, setTitulo] = useState(""); // Campo obrigatório para o nome da conta
+  const [errorMessage, setErrorMessage] = useState("");
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false); // Modal para campo personalizado
   const [fieldOptionModalOpen, setFieldOptionModalOpen] = useState(false); // Modal para escolher tipo de informação
   const [customFieldName, setCustomFieldName] = useState("");
@@ -23,8 +24,9 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
       .catch((error) => console.error("Erro ao buscar contas:", error));
   }, [folder.id]);
 
+  // pra ter os labels dinamicamente
   const addNewField = (fieldType) => {
-    if (fieldType === "outro") {
+    if (fieldType === "Outro") {
       setCustomFieldModalOpen(true); // Abre o modal para campo personalizado
     } else {
       setNewAccountFields([
@@ -35,6 +37,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     }
   };
 
+  // funcao pro modal do campo personalizado
   const handleCustomFieldSubmit = () => {
     setNewAccountFields([
       ...newAccountFields,
@@ -45,21 +48,18 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     setCustomFieldModalOpen(false); // Fecha o segundo modal
   };
 
+  //pra mudar os value dinamicamente
   const handleInputChange = (index, value) => {
     const updatedFields = [...newAccountFields];
     updatedFields[index].value = value;
-
-    if (updatedFields[index].label === "email" && !isValidEmail(value)) {
-      setErrorMessage("Formato de email inválido.");
-    } else {
-      setErrorMessage(""); // Limpa a mensagem de erro
-    }
 
     setNewAccountFields(updatedFields);
   };
 
   const handleAddAccount = () => {
+    setErrorMessage("");
     if (!titulo.trim()) {
+      setErrorMessage("Preencha o título da conta e adicione pelo menos um campo.");
       console.error("O título é obrigatório.");
       return; // Impede de prosseguir se o título estiver vazio
     }
@@ -68,6 +68,12 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
       console.error("Nenhum dado foi fornecido para a conta.");
       return;
     }
+    const emailField = newAccountFields.find(field => field.label === "Email");
+    // Verificar se o campo de email existe e é válido
+  if (emailField && !isValidEmail(emailField.value)) {
+    setErrorMessage("Por favor, insira um email válido.");
+    return;
+  }
 
     // Transforme os campos dinâmicos em um formato adequado para o backend
     const accountData = {
@@ -85,6 +91,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         // Faz uma requisição para buscar as contas novamente, garantindo que os dados estejam completos
         getAccounts(folder.id)
           .then((updatedResponse) => {
+            console.log("Contas atualizadas:", updatedResponse.data); // Verifique o conteúdo
             setAccounts(updatedResponse.data); // Atualiza o estado com as contas completas
           })
           .catch((error) => console.error("Erro ao buscar contas atualizadas:", error));
@@ -94,7 +101,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         setAddingAccount(false);
         setTitulo(""); // Reseta o título após adicionar a conta
         setNewAccountFields([]); // Reseta os campos
-
+        setErrorMessage("");  
        
       })
       .catch((error) => {
@@ -106,8 +113,9 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
 
   return (
     <div className="bg-transparent p-8 rounded-lg w-full max-w-3xl">
-      <h2 className="text-3xl text-branco30 mb-4">{folder.nome}</h2>
-
+      <h2 className="text-4xl text-azul10 font-bold text-center mb-4">{folder.nome}</h2>
+      {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
+      {/* Lista de contas */}
       {accounts.length > 0 ? (
         <div className="mb-8">
           <ul>
@@ -120,7 +128,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
                       className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
                       key={index}
                     >
-                      <strong>{item.rotulo}:</strong> {item.dado}
+                      <strong>{item.rotulo}: </strong> {item.dado}
                     </p>
                   ))
                 ) : (
@@ -150,13 +158,13 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
           <h3 className="text-xl text-azul10 mb-2">Adicionar Nova Conta</h3>
 
           {/* Campo obrigatório para o título */}
-          <div className="mb-2">
-            <label>Título da Conta</label>
+          <div className="mb-3 space-y-1">
+            <label className="text-azul10">Título da Conta </label>
             <input
               type="text"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
+              className="p-2 w-full mb-4 rounded-lg text-gray-500"
               placeholder="Digite o nome da conta"
               required
             />
@@ -164,8 +172,8 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
 
           {/* Campos dinâmicos */}
           {newAccountFields.map((field, index) => (
-            <div key={index} className="mb-2">
-              <label>{field.label}</label>
+            <div key={index} className="mb-2 flex flex-col">
+              <label className="text-azul10 mr-2">{field.label} </label>
               <input
                 type="text"
                 value={field.value}
@@ -207,27 +215,27 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
             <h3 className="text-xl mb-4">Selecione o tipo de informação</h3>
             <div className="flex flex-col space-y-4">
               <button
-                onClick={() => addNewField("email")}
+                onClick={() => addNewField("Email")}
                 className="bg-azul10 text-white px-4 py-2 rounded-lg"
               >
                 Email
               </button>
               <button
-                onClick={() => addNewField("senha")}
+                onClick={() => addNewField("Senha")}
                 className="bg-azul10 text-white px-4 py-2 rounded-lg"
               >
                 Senha
               </button>
               <button
-                onClick={() => addNewField("outro")}
-                className="bg-azul10 text-white px-4 py-2 rounded-lg"
+                onClick={() => addNewField("Outro")}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg"
               >
                 Outro
               </button>
             </div>
             <button
               onClick={() => setFieldOptionModalOpen(false)}
-              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg w-full"
+              className="mt-4 text-gray-600 underline"
             >
               Cancelar
             </button>
@@ -245,19 +253,22 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
               value={customFieldName}
               onChange={(e) => setCustomFieldName(e.target.value)}
               className="border p-2 w-full mb-4"
+              placeholder="Nome da informação"
             />
+            <div className="flex flex-row justify-between items-center space-x-4">
             <button
               onClick={handleCustomFieldSubmit}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg w-full mb-2"
+              className="bg-green-500 text-white px-4 py-2 rounded-lg  mb-2"
             >
               Adicionar
             </button>
             <button
               onClick={() => setCustomFieldModalOpen(false)}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg w-full"
+              className="mt-4 text-gray-600 underline"
             >
               Cancelar
             </button>
+            </div>
           </div>
         </div>
       )}

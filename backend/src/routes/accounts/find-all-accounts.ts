@@ -19,6 +19,7 @@ export const FindAllAccounts = async (app: FastifyInstance) => {
             const accountsWithItems = await Promise.all(
                 accounts.map(async (account) => {
                     const items = await knex<ItemConta>('ItemConta').where({ id_conta: account.id });
+                    console.log("Itens da conta:", account.id, items);
                     return { ...account, dados: items }; // vai inclui os itens no campo 'dados'
                 })
             );
