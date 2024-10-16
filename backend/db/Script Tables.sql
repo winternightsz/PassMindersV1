@@ -16,34 +16,34 @@ USE passMinders;
 --    PRIMARY KEY (id)
 --);
 
-SELECT * FROM Usuario;
-
---CREATE TABLE Pasta (
---    id INT IDENTITY(1,1) NOT NULL,
---    nome VARCHAR(100),
---    PRIMARY KEY (id)
---);
-
-SELECT * FROM Pasta;
-
-CREATE TABLE Contas (
-    id				INT IDENTITY(1,1) PRIMARY KEY,
-    id_pasta		INT NOT NULL,
-    email			NVARCHAR(255),
-    nome			NVARCHAR(255),
-    senha			NVARCHAR(255),
-    outro			NVARCHAR(MAX), 
-    
-		CONSTRAINT	 fk_pasta
-        FOREIGN KEY	(id_pasta) 
-        REFERENCES	 Pasta(id)
-        ON DELETE CASCADE
+CREATE TABLE Pasta (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    nome VARCHAR(40),
+    id_usuario INT,
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id)
 );
 
-SELECT * FROM Contas;
+
+CREATE TABLE Conta (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    titulo VARCHAR(40),
+    foto_referencia VARCHAR(255),
+    id_pasta INT,
+    FOREIGN KEY (id_pasta) REFERENCES Pasta(id)
+);
+
+
+CREATE TABLE ItemConta (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    rotulo VARCHAR(30),
+    dado VARCHAR(50),
+    id_conta INT,
+    FOREIGN KEY (id_conta) REFERENCES Conta(id)
+);
+
 
 -- ##############################################
--- ############ Tabelas não criadas #############
+-- ############ Tabelas nao criadas #############
 -- ##############################################
 
 CREATE TABLE AtividadeSuspeita (
