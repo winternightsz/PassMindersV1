@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
+import { isValidEmail } from "@/app/utils/validations";
 import { getAccounts, createAccount } from "@/app/services/api";
 
-const FolderDetail = ({ folder, onBack }) => {
+const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [accounts, setAccounts] = useState([]);
   const [addingAccount, setAddingAccount] = useState(false);
   const [newAccountFields, setNewAccountFields] = useState([]); // Campos dinâmicos
+  const [titulo, setTitulo] = useState(""); // Campo obrigatório para o nome da conta
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false); // Modal para campo personalizado
   const [fieldOptionModalOpen, setFieldOptionModalOpen] = useState(false); // Modal para escolher tipo de informação
   const [customFieldName, setCustomFieldName] = useState("");
@@ -23,7 +25,7 @@ const FolderDetail = ({ folder, onBack }) => {
 
   const addNewField = (fieldType) => {
     if (fieldType === "outro") {
-      setCustomFieldModalOpen(true); // Abre o segundo modal para campo personalizado
+      setCustomFieldModalOpen(true); // Abre o modal para campo personalizado
     } else {
       setNewAccountFields([
         ...newAccountFields,
@@ -39,40 +41,61 @@ const FolderDetail = ({ folder, onBack }) => {
       { label: customFieldName, value: "" },
     ]);
     setCustomFieldName(""); // Limpa o campo
-    setFieldOptionModalOpen(false); //fecha o primeiro modal
+    setFieldOptionModalOpen(false); // Fecha o primeiro modal
     setCustomFieldModalOpen(false); // Fecha o segundo modal
   };
 
   const handleInputChange = (index, value) => {
     const updatedFields = [...newAccountFields];
     updatedFields[index].value = value;
+
+    if (updatedFields[index].label === "email" && !isValidEmail(value)) {
+      setErrorMessage("Formato de email inválido.");
+    } else {
+      setErrorMessage(""); // Limpa a mensagem de erro
+    }
+
     setNewAccountFields(updatedFields);
   };
 
   const handleAddAccount = () => {
+    if (!titulo.trim()) {
+      console.error("O título é obrigatório.");
+      return; // Impede de prosseguir se o título estiver vazio
+    }
+
     if (!newAccountFields || newAccountFields.length === 0) {
       console.error("Nenhum dado foi fornecido para a conta.");
       return;
     }
 
-    // Transforme os campos dinâmicos em um objeto adequado para o backend
-    const accountData = newAccountFields.reduce((acc, field) => {
-      acc[field.label] = field.value || "Sem valor"; // Converte para o formato esperado
-      return acc;
-    }, {});
+    // Transforme os campos dinâmicos em um formato adequado para o backend
+    const accountData = {
+      id_pasta: folder.id, // Relaciona a conta à pasta
+      titulo: titulo, // Nome da conta obrigatório
+      foto_referencia: "/imagensHome/logoEscudo.png",
+      dados: newAccountFields, // Passa os campos como "dados"
+    };
 
-    // Adicione o ID da pasta
-    accountData.id_pasta = folder.id;
-
-    // Log para verificar os dados antes de enviar
     console.log("Dados enviados ao backend:", accountData);
 
     // Envie os dados para o backend
     createAccount(accountData)
       .then((response) => {
-        setAccounts([...accounts, response.data]);
+        // Faz uma requisição para buscar as contas novamente, garantindo que os dados estejam completos
+        getAccounts(folder.id)
+          .then((updatedResponse) => {
+            setAccounts(updatedResponse.data); // Atualiza o estado com as contas completas
+          })
+          .catch((error) => console.error("Erro ao buscar contas atualizadas:", error));
+         
+           // Atualiza as pastas na MainPage após adicionar conta
+        updateFolders();
         setAddingAccount(false);
+        setTitulo(""); // Reseta o título após adicionar a conta
         setNewAccountFields([]); // Reseta os campos
+
+       
       })
       .catch((error) => {
         console.error("Erro ao adicionar conta:", error);
@@ -80,27 +103,29 @@ const FolderDetail = ({ folder, onBack }) => {
       });
   };
 
+
   return (
-    <div className="bg-transparent p-8 rounded-lg  w-full max-w-3xl">
+    <div className="bg-transparent p-8 rounded-lg w-full max-w-3xl">
       <h2 className="text-3xl text-branco30 mb-4">{folder.nome}</h2>
 
       {accounts.length > 0 ? (
         <div className="mb-8">
-          {/* <h3 className="text-xl mb-4">Contas</h3> */}
           <ul>
             {accounts.map((account) => (
               <li key={account.id} className="bg-branco30 p-4 rounded-lg mb-2">
-                {/* Itera sobre todas as chaves do objeto account e exibe as que têm valor */}
-                {Object.entries(account)
-                  .filter(([key, value]) => key !== "id" && value) // Ignorar 'id' e campos sem valor
-                  .map(([key, value], index) => (
+                <h3 className="text-2xl font-bold mb-4">{account.titulo}</h3>
+                {Array.isArray(account.dados) && account.dados.length > 0 ? (
+                  account.dados.map((item, index) => (
                     <p
                       className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
                       key={index}
                     >
-                      <strong>{key}:</strong> {value}
+                      <strong>{item.rotulo}:</strong> {item.dado}
                     </p>
-                  ))}
+                  ))
+                ) : (
+                  <p className="text-gray-500">Nenhum dado disponível</p>
+                )}
               </li>
             ))}
           </ul>
@@ -124,6 +149,20 @@ const FolderDetail = ({ folder, onBack }) => {
         <div className="mt-4 bg-branco30 p-4 rounded-lg">
           <h3 className="text-xl text-azul10 mb-2">Adicionar Nova Conta</h3>
 
+          {/* Campo obrigatório para o título */}
+          <div className="mb-2">
+            <label>Título da Conta</label>
+            <input
+              type="text"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
+              placeholder="Digite o nome da conta"
+              required
+            />
+          </div>
+
+          {/* Campos dinâmicos */}
           {newAccountFields.map((field, index) => (
             <div key={index} className="mb-2">
               <label>{field.label}</label>
@@ -139,7 +178,7 @@ const FolderDetail = ({ folder, onBack }) => {
           <div className="flex items-center">
             <button
               className="bg-azul10 text-white p-2 px-4 rounded-full mr-4"
-              onClick={() => setFieldOptionModalOpen(true)} // Abre o primeiro modal
+              onClick={() => setFieldOptionModalOpen(true)} // Abre o modal para selecionar campos
             >
               +
             </button>
@@ -161,7 +200,7 @@ const FolderDetail = ({ folder, onBack }) => {
         </div>
       )}
 
-      {/* Primeiro modal: Seleção de tipo de campo */}
+      {/* Modal para selecionar tipo de campo */}
       {fieldOptionModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -172,12 +211,6 @@ const FolderDetail = ({ folder, onBack }) => {
                 className="bg-azul10 text-white px-4 py-2 rounded-lg"
               >
                 Email
-              </button>
-              <button
-                onClick={() => addNewField("nome")}
-                className="bg-azul10 text-white px-4 py-2 rounded-lg"
-              >
-                Nome
               </button>
               <button
                 onClick={() => addNewField("senha")}
@@ -202,7 +235,7 @@ const FolderDetail = ({ folder, onBack }) => {
         </div>
       )}
 
-      {/* Segundo modal: Campo personalizado */}
+      {/* Modal para adicionar campo personalizado */}
       {customFieldModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
