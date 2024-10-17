@@ -5,12 +5,12 @@ import { getAccounts, createAccount } from "@/app/services/api";
 
 const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [accounts, setAccounts] = useState([]);
-  const [addingAccount, setAddingAccount] = useState(false);
-  const [newAccountFields, setNewAccountFields] = useState([]); // Campos dinâmicos
-  const [titulo, setTitulo] = useState(""); // Campo obrigatório para o nome da conta
+  const [addingAccount, setAddingAccount] = useState(false); // pra nao duplicar
+  const [newAccountFields, setNewAccountFields] = useState([]); //label  
+  const [titulo, setTitulo] = useState(""); // titulo conta
   const [errorMessage, setErrorMessage] = useState("");
-  const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false); // Modal para campo personalizado
-  const [fieldOptionModalOpen, setFieldOptionModalOpen] = useState(false); // Modal para escolher tipo de informação
+  const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false); 
+  const [fieldOptionModalOpen, setFieldOptionModalOpen] = useState(false); 
   const [customFieldName, setCustomFieldName] = useState("");
 
   useEffect(() => {
@@ -27,13 +27,13 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
   // pra ter os labels dinamicamente
   const addNewField = (fieldType) => {
     if (fieldType === "Outro") {
-      setCustomFieldModalOpen(true); // Abre o modal para campo personalizado
+      setCustomFieldModalOpen(true); 
     } else {
       setNewAccountFields([
         ...newAccountFields,
         { label: fieldType, value: "" },
       ]);
-      setFieldOptionModalOpen(false); // Fecha o modal de seleção de campo
+      setFieldOptionModalOpen(false); 
     }
   };
 
@@ -43,12 +43,12 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
       ...newAccountFields,
       { label: customFieldName, value: "" },
     ]);
-    setCustomFieldName(""); // Limpa o campo
-    setFieldOptionModalOpen(false); // Fecha o primeiro modal
-    setCustomFieldModalOpen(false); // Fecha o segundo modal
+    setCustomFieldName(""); 
+    setFieldOptionModalOpen(false); // fecha o primeiro modal
+    setCustomFieldModalOpen(false); // fecha o segundo modal
   };
 
-  //pra mudar os value dinamicamente
+  // pra mudar os label dinamicamente
   const handleInputChange = (index, value) => {
     const updatedFields = [...newAccountFields];
     updatedFields[index].value = value;
@@ -61,52 +61,53 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     if (!titulo.trim()) {
       setErrorMessage("Preencha o título da conta e adicione pelo menos um campo.");
       console.error("O título é obrigatório.");
-      return; // Impede de prosseguir se o título estiver vazio
+      return; 
     }
 
     if (!newAccountFields || newAccountFields.length === 0) {
       console.error("Nenhum dado foi fornecido para a conta.");
       return;
     }
+
     const emailField = newAccountFields.find(field => field.label === "Email");
-    // Verificar se o campo de email existe e é válido
+    
   if (emailField && !isValidEmail(emailField.value)) {
     setErrorMessage("Por favor, insira um email válido.");
     return;
   }
 
-    // Transforme os campos dinâmicos em um formato adequado para o backend
+    // transforma os campos dinamicos em um formato certo pro backend
     const accountData = {
-      id_pasta: folder.id, // Relaciona a conta à pasta
-      titulo: titulo, // Nome da conta obrigatório
+      id_pasta: folder.id, // relaciona a conta a pasta, o folder passa como parametro pro componente
+      titulo: titulo, // nome da conta obrigatorio
       foto_referencia: "/imagensHome/logoEscudo.png",
-      dados: newAccountFields, // Passa os campos como "dados"
+      dados: newAccountFields, // passa "dados" pro itemConta
     };
 
     console.log("Dados enviados ao backend:", accountData);
 
-    // Envie os dados para o backend
+    // envie os dados para o backend
     createAccount(accountData)
       .then((response) => {
-        // Faz uma requisição para buscar as contas novamente, garantindo que os dados estejam completos
+        // faz uma requisicao para buscar as contas de novo, pra garantir que os dados estao completos e certos
         getAccounts(folder.id)
           .then((updatedResponse) => {
-            console.log("Contas atualizadas:", updatedResponse.data); // Verifique o conteúdo
-            setAccounts(updatedResponse.data); // Atualiza o estado com as contas completas
+            console.log("Contas atualizadas:", updatedResponse.data); // pra ver oque o backend recebeu
+            setAccounts(updatedResponse.data); // atualiza o estado com as contas completas
           })
           .catch((error) => console.error("Erro ao buscar contas atualizadas:", error));
          
-           // Atualiza as pastas na MainPage após adicionar conta
+           // atualiza as pastas na MainPage depois de adicionar conta
         updateFolders();
         setAddingAccount(false);
-        setTitulo(""); // Reseta o título após adicionar a conta
-        setNewAccountFields([]); // Reseta os campos
+        setTitulo(""); 
+        setNewAccountFields([]); 
         setErrorMessage("");  
        
       })
       .catch((error) => {
         console.error("Erro ao adicionar conta:", error);
-        console.error("Resposta do servidor:", error.response?.data); // Log da resposta de erro
+        console.error("Resposta do servidor:", error.response?.data); // log da resposta do erro
       });
   };
 
@@ -115,7 +116,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     <div className="bg-transparent p-8 rounded-lg w-full max-w-3xl">
       <h2 className="text-4xl text-azul10 font-bold text-center mb-4">{folder.nome}</h2>
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
-      {/* Lista de contas */}
+      
       {accounts.length > 0 ? (
         <div className="mb-8">
           <ul>
@@ -157,7 +158,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         <div className="mt-4 bg-branco30 p-4 rounded-lg">
           <h3 className="text-xl text-azul10 mb-2">Adicionar Nova Conta</h3>
 
-          {/* Campo obrigatório para o título */}
+          
           <div className="mb-3 space-y-1">
             <label className="text-azul10">Título da Conta </label>
             <input
@@ -170,7 +171,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
             />
           </div>
 
-          {/* Campos dinâmicos */}
+          
           {newAccountFields.map((field, index) => (
             <div key={index} className="mb-2 flex flex-col">
               <label className="text-azul10 mr-2">{field.label} </label>
@@ -186,7 +187,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
           <div className="flex items-center">
             <button
               className="bg-azul10 text-white p-2 px-4 rounded-full mr-4"
-              onClick={() => setFieldOptionModalOpen(true)} // Abre o modal para selecionar campos
+              onClick={() => setFieldOptionModalOpen(true)} 
             >
               +
             </button>
@@ -208,7 +209,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         </div>
       )}
 
-      {/* Modal para selecionar tipo de campo */}
+     
       {fieldOptionModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -243,7 +244,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         </div>
       )}
 
-      {/* Modal para adicionar campo personalizado */}
+      
       {customFieldModalOpen && (
         <div className="fixed inset-0 bg-azul10 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">

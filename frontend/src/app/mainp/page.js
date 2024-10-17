@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import CreateFolder from "../../components/CreateFolder";
 import FolderDetail from "../../components/FolderDetail";
-import { getFolders } from "@/app/services/api"; // Função para buscar pastas do backend
+import { getFolders } from "@/app/services/api"; 
 
 const MainPage = () => {
   const [folders, setFolders] = useState([]);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState(null);
 
-  // Buscar pastas e contas associadas do backend
+  // busca pastas e contas associadas do backend
   useEffect(() => {
     getFolders()
       .then((response) => {
@@ -23,7 +23,7 @@ const MainPage = () => {
       .catch((error) => console.error("Erro ao buscar pastas:", error));
   }, []);
 
-  // Atualiza as pastas após adicionar conta
+  // atualiza as pastas depois de adicionar conta
   const updateFolders = async () => {
     try {
       const response = await getFolders();
@@ -33,40 +33,44 @@ const MainPage = () => {
     }
   };
 
+
   const handleCreateFolder = async (data) => {
     if (!data) {
       setCreatingFolder(false);
       return;
     }
 
-    setSelectedFolder(data); // Navega automaticamente para a pasta criada
+    setSelectedFolder(data); // vai navegar automaticamente para a pasta criada
 
-    // Verifica se a nova pasta já não existe antes de adicioná-la ao estado
+    // verifica se a nova pasta ja nao existe antes de adicionar ela no estado
+    // pra nao duplicar
     if (!folders.some((folder) => folder.id === data.id)) {
       setFolders((prevFolders) => [...prevFolders, data]);
     }
 
-    // Recarrega as pastas do backend para garantir que tudo está atualizado
+    // recarrega as pastas do backend para garantir que tudo ta atualizado
     updateFolders();
     setCreatingFolder(false);
   };
 
+  // seleciona a pasta para mostrar os detalhes dentro
   const handleSelectFolder = (folder) => {
-    setSelectedFolder(folder); // Seleciona a pasta para exibir detalhes
+    setSelectedFolder(folder); 
   };
 
   const handleBackToMainPage = () => {
-    setSelectedFolder(null); // Voltar para a Main Page
+    setSelectedFolder(null); // voltar pra Main Page
     setCreatingFolder(false);
 
-    // Recarrega as pastas ao voltar da página de detalhes
+    // recarrega as pastas ao voltar da folderDetail
+    // para garantir que tudo ta atualizado
     updateFolders();
   };
 
   return (
     <div className="flex min-h-screen bg-azul60 ">
       <Sidebar
-        folders={folders} // Passa as pastas como prop para o Sidebar
+        folders={folders} // passa as pastas como prop pro Sidebar
         onSelectFolder={handleSelectFolder}
         onBack={handleBackToMainPage}
         onCreateFolder={() => setCreatingFolder(true)}
@@ -76,7 +80,7 @@ const MainPage = () => {
           <FolderDetail
             folder={selectedFolder}
             onBack={handleBackToMainPage}
-            updateFolders={updateFolders} // Passa a função para atualizar as pastas
+            updateFolders={updateFolders} // passa a funcao para atualizar as pastas
           />
         ) : creatingFolder ? (
           <CreateFolder onBack={handleBackToMainPage} onCreate={handleCreateFolder} />
@@ -94,7 +98,7 @@ const MainPage = () => {
                       {folder.contas.slice(0, 2).map((account) => (
                         <li key={account.id}>
                           <img
-                            src={account.foto_referencia}
+                            src={account.foto_referencia} // esta com a foto do escudo da logo
                             alt={account.titulo}
                             className="w-24 h-24 object-cover"
                           />
