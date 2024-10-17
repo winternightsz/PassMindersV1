@@ -2,25 +2,20 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { knex } from '../../database';
 import { Account } from '../../models/Account';
 import { ItemConta } from '../../models/ItemConta';
-//Esse aqui usa no folderDetails 
+
 export const FindAllAccounts = async (app: FastifyInstance) => {
-    app.get('/findAccounts/:folderId', async (request: FastifyRequest, reply) => {
-        const { folderId } = request.params as { folderId: number };
-
+    app.get('/findAllAccounts', async (request: FastifyRequest, reply) => {
         try {
-            //busca todas as contas relacionadas a uma pasta especifica
-            const accounts = await knex<Account>('Conta').where({ id_pasta: folderId });
-
+            const accounts = await knex<Account>('Conta').select('*');
             if (!accounts || accounts.length === 0) {
-                return reply.status(404).send({ error: 'Nenhuma conta encontrada para esta pasta.' });
+                return reply.status(404).send({ error: 'Nenhuma conta encontrada.' });
             }
 
-            // pra cada conta vai buscar os itens relacionados
             const accountsWithItems = await Promise.all(
                 accounts.map(async (account) => {
                     const items = await knex<ItemConta>('ItemConta').where({ id_conta: account.id });
                     console.log("Itens da conta:", account.id, items);
-                    return { ...account, dados: items }; // vai inclui os itens no campo 'dados'
+                    return { ...account, dados: items };
                 })
             );
 
