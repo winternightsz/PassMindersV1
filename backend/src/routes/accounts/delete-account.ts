@@ -2,47 +2,44 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { ZodError } from "zod";
 import { z } from "zod";
 import { knex } from '../../database';
-import { Folder } from '../../models/Folder';
 import { Account } from '../../models/Account';
 import { ItemConta } from '../../models/ItemConta';
 
-export const DeleteFolder = async (app: FastifyInstance) => {
+export const DeleteAccount = async (app: FastifyInstance) => {
   app.delete('/deleteAccount', async (request: FastifyRequest, reply) => {
-
-
     const AccountSchema = z.object({
-        id_pasta: z.number().int().nonnegative(),
-        id_conta: z.number().int().nonnegative(),
-      });
-
-    const accountData = AccountSchema.parse(request.body); // ID do folder a ser deletado
+      id_pasta: z.number().int().nonnegative(),
+      id_conta: z.number().int().nonnegative(),
+    });
 
     try {
-      // Iniciar uma transação
+      const accountData = AccountSchema.parse(request.body);
+
       await knex.transaction(async (trx) => {
-        // Passo 1: Deletar os itens (ItemConta) relacionados a cada conta do folder
+        // Deleta os itens (ItemConta) relacionados à conta específica
         await trx<ItemConta>('ItemConta')
-          .whereIn('id_conta', function () {
-            this.select('id').from('Conta').where('id_pasta', accountData.id_pasta);
-          })
+          .where('id_conta', accountData.id_conta)
           .del();
 
-        // Passo 2: Deletar as contas (Account) associadas ao folder
-        const deletedConta = await trx<Account>('Conta').whereIn('id', function () {
-            this.select('id').from('Conta').where('id_pasta', accountData.id_pasta);
-          })
+        // Deleta a conta (Account) específica
+        const deletedConta = await trx<Account>('Conta')
+          .where('id', accountData.id_conta)
+          .andWhere('id_pasta', accountData.id_pasta)
           .del();
-
 
         if (deletedConta) {
-          return reply.status(200).send({ message: 'Pasta e conteúdos associados deletados com sucesso.' });
+          return reply.status(200).send({ message: 'Conta e itens associados deletados com sucesso.' });
         } else {
-          return reply.status(404).send({ error: 'Pasta não encontrada.' });
+          return reply.status(404).send({ error: 'Conta não encontrada.' });
         }
       });
     } catch (error) {
-      console.error('Erro ao deletar pasta e conteúdo associado:', error);
-      return reply.status(500).send({ error: 'Erro ao deletar pasta.' });
+      if (error instanceof ZodError) {
+        return reply.status(400).send({ error: 'Dados de entrada inválidos', details: error.errors });
+      } else {
+        console.error('Erro ao deletar conta e itens associados:', error);
+        return reply.status(500).send({ error: 'Erro ao deletar conta.' });
+      }
     }
   });
 };

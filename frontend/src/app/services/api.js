@@ -7,12 +7,17 @@ const api = axios.create({
 
 // usado no foldersDetails
 export const getAccounts = (folderId) => {
-  return api.get(`/findAccounts/${folderId}`);  
+  return api.get(`/findAccount/${folderId}`);  
 };
 
 // usado no foldersDetails
 export const createAccount = (accountData) => {
   return api.post('/createAccount', accountData);  
+};
+
+// usado no foldersDetails para deletar uma conta
+export const deleteAccount = (id_pasta, id_conta) => {
+  return api.delete('/deleteAccount', { data: { id_pasta, id_conta } });
 };
 
 // usado no mainpage
