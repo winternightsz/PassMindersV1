@@ -1,8 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { isValidEmail } from "@/app/utils/validations";
-import { getAccounts, createAccount } from "@/app/services/api";
-import { deleteAccount } from "@/app/services/api";
+import {
+  getAccounts,
+  createAccount,
+  deleteAccount,
+  updateAccount,
+} from "@/app/services/api";
 
 const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [accounts, setAccounts] = useState([]);
@@ -15,6 +19,12 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [customFieldName, setCustomFieldName] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // modal de excluir checar
   const [accountToDelete, setAccountToDelete] = useState(null); // armazena a conta que vai ser deletada
+  const [editModalOpen, setEditModalOpen] = useState(false); // modal de edicao
+  const [accountToEdit, setAccountToEdit] = useState(null); // conta a ser editada
+  const [editedAccountFields, setEditedAccountFields] = useState([]); // campos editados
+  const [isAddingNewField, setIsAddingNewField] = useState(false); // controle para mostrar a area de adicionar novo campo
+  const [newFieldLabel, setNewFieldLabel] = useState(""); // label para novo campo
+  const [newFieldValue, setNewFieldValue] = useState(""); // value para novo campo
 
   useEffect(() => {
     console.log("Carregando contas para a pasta:", folder.id);
@@ -125,7 +135,9 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const handleDeleteAccount = () => {
     deleteAccount(folder.id, accountToDelete)
       .then(() => {
-        setAccounts(accounts.filter(account => account.id !== accountToDelete));
+        setAccounts(
+          accounts.filter((account) => account.id !== accountToDelete)
+        );
         updateFolders(); // Atualiza a Main Page
         setDeleteModalOpen(false); // Fecha o modal
         setAccountToDelete(null); // Limpa a conta selecionada
@@ -134,7 +146,60 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         console.error("Erro ao deletar conta:", error);
       });
   };
-  
+
+  const openEditModal = (account) => {
+    setAccountToEdit(account);
+    setEditedAccountFields(account.dados || []); // Inicializa com dados existentes
+    setEditModalOpen(true);
+    setIsAddingNewField(false);
+  };
+
+  const handleAddNewField = () => {
+    if (!newFieldLabel.trim()) {
+      setErrorMessage("O rótulo do novo campo não pode estar vazio.");
+      return;
+    }
+    setEditedAccountFields([
+      ...editedAccountFields,
+      { label: newFieldLabel, value: newFieldValue }
+    ]);
+    setNewFieldLabel("");
+    setNewFieldValue("");
+    setIsAddingNewField(false);
+  };
+
+  const handleEditInputChange = (index, value) => {
+    const updatedFields = [...editedAccountFields];
+    updatedFields[index].value = value;
+    setEditedAccountFields(updatedFields);
+  };
+
+  const removeFieldFromEdit = (index) => {
+    const updatedFields = [...editedAccountFields];
+    updatedFields.splice(index, 1);
+    setEditedAccountFields(updatedFields);
+  };
+
+  const handleSaveEditedAccount = () => {
+    const updatedAccountData = {
+      id_pasta: folder.id,
+      id_conta: accountToEdit.id,
+      dados: editedAccountFields,
+    };
+    updateAccount(updatedAccountData.id_pasta, updatedAccountData.id_conta, updatedAccountData.dados)
+      .then(() => {
+        setAccounts((prevAccounts) =>
+          prevAccounts.map((account) =>
+            account.id === accountToEdit.id
+              ? { ...account, dados: editedAccountFields }
+              : account
+          )
+        );
+        setEditModalOpen(false);
+      })
+      .catch((error) => console.error("Erro ao atualizar conta:", error));
+  };
+
 
   return (
     <div className="bg-transparent p-8 rounded-lg w-full max-w-3xl">
@@ -150,25 +215,29 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
               <li key={account.id} className="bg-branco30 p-4 rounded-lg mb-2">
                 <div className="flex justify-between items-center">
                   <h3 className="text-2xl font-bold mb-4">{account.titulo}</h3>
-                  <button
-                    onClick={() => openDeleteModal(account.id)}
-                    className="text-red-500 p-2"
-                  >
-                    Deletar
-                  </button>
-                </div>
-                {Array.isArray(account.dados) && account.dados.length > 0 ? (
-                  account.dados.map((item, index) => (
-                    <p
-                      className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
-                      key={index}
+                  <div className="flex">
+                    <button
+                      onClick={() => openEditModal(account)}
+                      className="text-blue-500 p-2"
                     >
-                      <strong>{item.rotulo}: </strong> {item.dado}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-500">Nenhum dado disponível</p>
-                )}
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(account.id)}
+                      className="text-red-500 p-2"
+                    >
+                      Deletar
+                    </button>
+                  </div>
+                </div>
+                {account.dados.map((item, index) => (
+                  <p
+                    key={index}
+                    className="p-2 mb-2 rounded-lg text-gray-500 bg-azul60"
+                  >
+                    <strong>{item.rotulo}: </strong> {item.dado}
+                  </p>
+                ))}
               </li>
             ))}
           </ul>
@@ -184,7 +253,9 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h3 className="text-xl font-bold mb-4 text-center">Confirmação</h3>
-            <p className="text-center mb-4">Tem certeza de que deseja deletar esta conta?</p>
+            <p className="text-center mb-4">
+              Tem certeza de que deseja deletar esta conta?
+            </p>
             <div className="flex justify-between">
               <button
                 onClick={() => setDeleteModalOpen(false)}
@@ -198,6 +269,65 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
               >
                 Confirmar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+     {/* Modal de Edicao */}
+     {editModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-xl font-bold mb-4 text-center">Editar a conta: {accountToEdit?.titulo}</h3>
+
+            {/* itens existentes so tem que colocar os antigos */}
+            {editedAccountFields.map((field, index) => (
+              <div key={index} className="mb-3">
+                <label className="block text-gray-700">{field.label}</label>
+                <input
+                  type="text"
+                  value={field.value}
+                  onChange={(e) => handleEditInputChange(index, e.target.value)}
+                  className="w-full px-3 py-2 rounded border"
+                />
+                <button onClick={() => removeFieldFromEdit(index)} className="text-red-500 text-sm mt-1">Remover</button>
+              </div>
+            ))}
+
+            {/* adicionar Novo Campo */}
+            {!isAddingNewField && (
+              <button
+                onClick={() => setIsAddingNewField(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full mt-4"
+              >
+                Adicionar Campo
+              </button>
+            )}
+            {isAddingNewField && (
+              <div className="mb-3 mt-4">
+                <input
+                  type="text"
+                  placeholder="Tipo de Informação"
+                  value={newFieldLabel}
+                  onChange={(e) => setNewFieldLabel(e.target.value)}
+                  className="w-full px-3 py-2 rounded border mb-2"
+                />
+                <input
+                  type="text"
+                  placeholder="Informação"
+                  value={newFieldValue}
+                  onChange={(e) => setNewFieldValue(e.target.value)}
+                  className="w-full px-3 py-2 rounded border"
+                />
+                <button onClick={handleAddNewField} className="bg-green-500 text-white px-4 py-2 rounded-lg w-full mt-2">
+                  Adicionar Item
+                </button>
+              </div>
+            )}
+
+            {/* botao de Cancelar e Salvar */}
+            <div className="flex justify-between mt-4">
+              <button onClick={() => setEditModalOpen(false)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
+               <button /*onClick={handleSaveEditedAccount}*/ className="bg-green-500 text-white px-4 py-2 rounded-lg">Salvar</button> 
             </div>
           </div>
         </div>
