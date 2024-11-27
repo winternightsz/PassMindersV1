@@ -27,7 +27,8 @@ const Sidebar = ({ folders, onSelectFolder, onCreateFolder, onBack }) => {
       <div className="flex-grow mb-8 flex flex-col">
         {folders.length > 0 ? (
           folders.map((folder) => (
-            <div
+            <div data-cy="folder-lado"
+              data-id={folder.id}
               key={folder.id}
               className="text-azul10 cursor-pointer mb-4"
               onClick={() => onSelectFolder(folder)}

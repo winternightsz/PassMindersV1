@@ -92,7 +92,7 @@ const MainPage = () => {
                   key={folder.id}
                   className="bg-white p-6 rounded-lg shadow-lg"
                 >
-                  <h3 className="text-2xl text-azul10 mb-4">{folder.nome}</h3>
+                  <h3 data-cy="folder-nome" className="text-2xl text-azul10 mb-4">{folder.nome}</h3>
                   {folder.contas?.length > 0 ? (
                     <ul className="flex space-x-20 justify-center">
                       {folder.contas.slice(0, 2).map((account) => (

@@ -203,7 +203,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
 
   return (
     <div className="bg-transparent p-8 rounded-lg w-full max-w-3xl">
-      <h2 className="text-4xl text-azul10 font-bold text-center mb-4">
+      <h2 data-cy="folder-nome" className="text-4xl text-azul10 font-bold text-center mb-4">
         {folder.nome}
       </h2>
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
@@ -460,6 +460,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
 
       <div className="mt-8">
         <button
+        data-cy="voltar-main"
           onClick={onBack}
           className="bg-branco30 text-gray-700 px-4 py-2 rounded-lg"
         >
