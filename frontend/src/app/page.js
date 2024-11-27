@@ -27,11 +27,11 @@ export default function HomeTest() {
           </div>
         </div>
         <div className="flex flex-row space-x-4">
-          <Link href="/login" className="text-[#5673D5] hover:text-[#3b54b5] p-4 hover:underline">
+          <Link href="/login" data-cy="botao-login" className="text-[#5673D5] hover:text-[#3b54b5] p-4 hover:underline">
             Fazer login
           </Link>
           <Link href="/cadastro">
-            <button className="bg-[#5673D5] text-white px-8 py-4 rounded-full hover:bg-[#3b54b5] transition">
+            <button data-cy="botao-cadastro" className="bg-[#5673D5] text-white px-8 py-4 rounded-full hover:bg-[#3b54b5] transition">
               INSCREVA-SE
             </button>
           </Link>

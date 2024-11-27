@@ -16,3 +16,6 @@ out/
 # OS or editor folders
 .DS_Store
 .vscode/
+
+cypress/screenshots/
+cypress/videos/
