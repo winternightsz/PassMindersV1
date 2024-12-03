@@ -14,7 +14,6 @@ const MainContent = ({ folders, onCreateFolder }) => {
   return (
     <div className="flex-1 bg-blue-100 p-8 flex items-center justify-center">
       {folders.length === 0 ? (
-        // Caso não existam pastas, exibe apenas o botão de criar
         <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center">
           <input
             type="text"
