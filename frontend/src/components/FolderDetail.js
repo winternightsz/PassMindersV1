@@ -13,18 +13,24 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
   const [addingAccount, setAddingAccount] = useState(false); // pra nao duplicar
   const [newAccountFields, setNewAccountFields] = useState([]); //label
   const [titulo, setTitulo] = useState(""); // titulo conta
+
   const [errorMessage, setErrorMessage] = useState("");
+
   const [customFieldModalOpen, setCustomFieldModalOpen] = useState(false);
   const [fieldOptionModalOpen, setFieldOptionModalOpen] = useState(false);
   const [customFieldName, setCustomFieldName] = useState("");
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // modal de excluir checar
   const [accountToDelete, setAccountToDelete] = useState(null); // armazena a conta que vai ser deletada
+
   const [editModalOpen, setEditModalOpen] = useState(false); // modal de edicao
   const [accountToEdit, setAccountToEdit] = useState(null); // conta a ser editada
   const [editedAccountFields, setEditedAccountFields] = useState([]); // campos editados
   const [isAddingNewField, setIsAddingNewField] = useState(false); // controle para mostrar a area de adicionar novo campo
   const [newFieldLabel, setNewFieldLabel] = useState(""); // label para novo campo
   const [newFieldValue, setNewFieldValue] = useState(""); // value para novo campo
+  const [accountTitle, setAccountTitle] = useState(accountToEdit?.titulo); //pra mudar o titulo da conta
+
 
   useEffect(() => {
     console.log("Carregando contas para a pasta:", folder.id);
@@ -128,6 +134,9 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         console.error("Resposta do servidor:", error.response?.data); // log da resposta do erro
       });
   };
+
+
+
   const openDeleteModal = (accountId) => {
     setAccountToDelete(accountId);
     setDeleteModalOpen(true);
@@ -147,8 +156,10 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
       });
   };
 
+
   const openEditModal = (account) => {
     setAccountToEdit(account);
+    setAccountTitle(account.titulo || ""); 
     setEditedAccountFields(account.dados || []); // Inicializa com dados existentes
     setEditModalOpen(true);
     setIsAddingNewField(false);
@@ -161,19 +172,20 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     }
     setEditedAccountFields([
       ...editedAccountFields,
-      { label: newFieldLabel, value: newFieldValue }
+      { rotulo: newFieldLabel, dado: newFieldValue }
     ]);
     setNewFieldLabel("");
     setNewFieldValue("");
+    setErrorMessage("");
     setIsAddingNewField(false);
   };
 
   const handleEditInputChange = (index, value) => {
     const updatedFields = [...editedAccountFields];
-    updatedFields[index].value = value;
+    updatedFields[index].dado = value;
     setEditedAccountFields(updatedFields);
   };
-
+  
   const removeFieldFromEdit = (index) => {
     const updatedFields = [...editedAccountFields];
     updatedFields.splice(index, 1);
@@ -184,14 +196,21 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
     const updatedAccountData = {
       id_pasta: folder.id,
       id_conta: accountToEdit.id,
+      titulo: accountTitle, 
       dados: editedAccountFields,
     };
-    updateAccount(updatedAccountData.id_pasta, updatedAccountData.id_conta, updatedAccountData.dados)
+  
+    updateAccount(
+      updatedAccountData.id_pasta,
+      updatedAccountData.id_conta,
+      updatedAccountData.titulo, 
+      updatedAccountData.dados
+    )
       .then(() => {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
             account.id === accountToEdit.id
-              ? { ...account, dados: editedAccountFields }
+              ? { ...account, titulo: updatedAccountData.titulo, dados: editedAccountFields }
               : account
           )
         );
@@ -199,6 +218,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
       })
       .catch((error) => console.error("Erro ao atualizar conta:", error));
   };
+  
 
 
   return (
@@ -248,7 +268,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
         </p>
       )}
 
-      {/* Modal de confirmação de exclusão */}
+      {/* Modal de confirmacao de exclusao */}
       {deleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
@@ -277,15 +297,21 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
      {editModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-bold mb-4 text-center">Editar a conta: {accountToEdit?.titulo}</h3>
-
+            {/* <h3 className="text-xl font-bold mb-4 text-center">Editar a conta: {accountToEdit?.titulo}</h3> */}
+            <label className="text-xl font-bold mb-4 text-center">Editar a conta:</label>
+                <input
+                  type="text"
+                  value={accountTitle}
+                  onChange={(e) => setAccountTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded border"
+                />
             {/* itens existentes so tem que colocar os antigos */}
             {editedAccountFields.map((field, index) => (
               <div key={index} className="mb-3">
-                <label className="block text-gray-700">{field.label}</label>
+                <label className="block text-gray-700">{field.rotulo}</label>
                 <input
                   type="text"
-                  value={field.value}
+                  value={field.dado}
                   onChange={(e) => handleEditInputChange(index, e.target.value)}
                   className="w-full px-3 py-2 rounded border"
                 />
@@ -327,7 +353,7 @@ const FolderDetail = ({ folder, onBack, updateFolders }) => {
             {/* botao de Cancelar e Salvar */}
             <div className="flex justify-between mt-4">
               <button onClick={() => setEditModalOpen(false)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">Cancelar</button>
-               <button /*onClick={handleSaveEditedAccount}*/ className="bg-green-500 text-white px-4 py-2 rounded-lg">Salvar</button> 
+               <button onClick={handleSaveEditedAccount} className="bg-green-500 text-white px-4 py-2 rounded-lg">Salvar</button> 
             </div>
           </div>
         </div>

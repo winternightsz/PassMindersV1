@@ -10,28 +10,35 @@ export const UpdateAccount = async (app: FastifyInstance) => {
     const AccountSchema = z.object({
       id_pasta: z.number().int().nonnegative(),
       id_conta: z.number().int().nonnegative(),
+      titulo: z.string().min(1), 
       dados: z.array(z.object({
-        label: z.string(),
-        value: z.string(),
+        rotulo: z.string(),
+        dado: z.string(),
       })),
     });
+    
 
     try {
       const accountData = AccountSchema.parse(request.body);
 
       await knex.transaction(async (trx) => {
-        // Remove todos os itens antigos da conta para garantir atualização completa
+        // atualiza o nome da conta
+        await trx('Conta')
+          .where('id', accountData.id_conta)
+          .update({ titulo: accountData.titulo });
+      
+        // remove todos os itens antigos da conta para garantir atualizacao completa
         await trx<ItemConta>('ItemConta').where('id_conta', accountData.id_conta).del();
-
-        // Insere todos os novos itens enviados
+      
+        // insere todos os novos itens enviados
         for (const item of accountData.dados) {
           await trx<ItemConta>('ItemConta').insert({
             id_conta: accountData.id_conta,
-            rotulo: item.label,
-            dado: item.value,
+            rotulo: item.rotulo,
+            dado: item.dado,
           });
         }
-
+      
         reply.status(200).send({ message: 'Conta atualizada com sucesso.' });
       });
     } catch (error) {

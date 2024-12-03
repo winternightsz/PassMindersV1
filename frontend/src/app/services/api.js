@@ -20,14 +20,14 @@ export const deleteAccount = (id_pasta, id_conta) => {
   return api.delete('/deleteAccount', { data: { id_pasta, id_conta } });
 };
 
-export const updateAccount = (id_pasta, id_conta, dados) => {
+export const updateAccount = (id_pasta, id_conta, titulo, dados) => {
   return api.put('/updateAccount', {
     id_pasta,
     id_conta,
+    titulo,
     dados,
   });
 };
-
 
 // usado no mainpage
 export const getFolders = () => {
